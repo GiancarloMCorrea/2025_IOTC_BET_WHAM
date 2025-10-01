@@ -1,3 +1,4 @@
+
 # -------------------------------------------------------------------------
 # Transform from SS model time step (quarter) to year-quarter:
 ssts2yq = function(qtr,initial = 1950, base = 13) {
@@ -661,3 +662,18 @@ aggregate.ssMod <- function(scs, path_scs){
   }
   return(SSsummarize(mod_sum))
 }
+
+
+# -------------------------------------------------------------------------
+
+# Select first year (when model starts):
+mod_str_yr = 1979
+mod_end_yr = 2023
+# First and last quarter:
+mod_str_qt = yearqtr2qtr(mod_str_yr, 1, 1950, 13)
+mod_end_qt = yearqtr2qtr(mod_end_yr, 4, 1950, 13)
+
+# fLEET Order
+fleet_order = c('LL', 'PSFS', 'PSLS', 'FL', 'LINE', 'BB', 'OTHER')
+
+

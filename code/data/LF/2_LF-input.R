@@ -3,14 +3,6 @@ rm(list = ls())
 # Read auxiliary functions:
 source('code/auxiliary_functions.R')
 
-# Select first year (when model starts):
-mod_str_yr = 1975
-mod_end_yr = 2023
-fleet_order = c('LL', 'PSFS', 'PSLS', 'FL', 'LINE', 'BB', 'OTHER')
-# First and last quarter:
-mod_str_qt = yearqtr2qtr(mod_str_yr, 1, 1950, 13)
-mod_end_qt = yearqtr2qtr(mod_end_yr, 4, 1950, 13)
-
 # Initial length bins (correct) in IOTC dataset:
 L_labels  =  c(Paste("L0",seq(10,98,2)), Paste("L",seq(100,198,2))) 
 
@@ -83,6 +75,11 @@ for(k in seq_along(fleet_order)) {
   lf_samp[row_pos, k] = tmp$Nsamp
   lf_use[row_pos, k] = 1
 }
+
+# Perform some filtering:
+# Remove LF data before yr 250 (too sparse!) for fleets 5, 6 and 7 
+pos_rem = mod_str_qt:mod_end_qt < 250
+lf_use[pos_rem, c(5, 6, 7)] = 0
 
 # Save SS catch input
 save(lf_input, file = file.path('data/processed', 'LF_input.RData'))
