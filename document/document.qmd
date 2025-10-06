@@ -1,0 +1,245 @@
+---
+title: "Advances in the use of state-space assessment models for tuna stocks: application to the Indian Ocean bigeye tuna"
+authors: 
+  - name: Giancarlo M. Correa
+    affiliations:
+      - ref: azti
+    email: gmoron@azti.es
+    corresponding: true
+  - name: Gorka Merino
+    affiliations:
+      - ref: azti
+  - name: Agurtzane Urtizberea
+    affiliations:
+      - ref: azti
+  - name: Yang Wang
+    affiliations:
+      - ref: ush
+affiliations:
+  - id: azti
+    name: AZTI, Marine Research, Basque Research and Technology Alliance (BRTA), Txatxarramendi ugartea z/g, 48395 Sukarrieta (Bizkaia), Spain
+  - id: ush
+    name: College of Marine Living Resource Sciences and Management, Shanghai Ocean University, Shanghai, China
+filters:
+  - authors-block
+link-citations: true
+csl: ../elsevier-harvard.csl
+format:
+  docx:
+    toc: false
+    number-sections: false
+    reference-doc: custom-reference-doc.docx
+editor: source
+bibliography: ../references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      verbose = FALSE,
+                      message = FALSE, 
+                      warning = FALSE)
+```
+
+```{r}
+# remotes::install_github("wmoldham/rbbt") # temporarily, until error is fixed
+require(knitr)
+require(rbbt)
+require(dplyr)
+require(flextable)
+require(this.path)
+qmd_file = this.path()
+options(knitr.kable.NA = '')
+# This will automatically update the BIB file:
+keys = rbbt::bbt_detect_citations(qmd_file)
+bbt_ignore = keys[grepl("fig-|tbl-|eq-|sec-", keys)]
+rbbt::bbt_update_bib(path_rmd = qmd_file, 
+                     ignore = bbt_ignore, overwrite = T, translator = "bibtex")
+```
+
+::: {custom-style="Abstract title"}
+Summary
+:::
+
+::: {custom-style="Abstract"}
+Add abstract
+
+:::
+
+::: {custom-style="Keywords"}
+KEYWORDS
+
+bigeye tuna, state-space models, stock assessment models, Indian Ocean, Woods Hole Assessment Model
+:::
+
+\newpage
+
+# Introduction
+
+Age-structured population dynamics models were initially limited to the use of age-specific data to estimate abundance-at-age and fishing mortality-at-age. Since the late 1990s, age-structured assessment platforms have been developed to include size-specific data and model the age-size transition internally [@methotStockSynthesisBiological2013; @fournierMULTIFANCLLengthbasedAgestructured1998], expanding their use for stocks with scarce age information like tunas. Most of these platforms were written in AD Model Builder (ADMB), which allowed for the efficient and accurate estimation of a large number of parameters [@fournierADModelBuilder2012]. During the last decade, age-structured state-space assessment models (SSAMs) have rapidly become popular due to the development of Template Model Builder (TMB) software, which leverages the Laplace approximation to efficiently integrate out random effects [@kristensenTMBAutomaticDifferentiation2016]. State-space models are a type of hierarchical model with two levels: 1) unobserved states or processes that represent the true state of nature that may vary over time, and 2) observations with associated errors of the state of nature [@auger-metheGuideStateSpace2021]. The key strength of models written in TMB is their ability to estimate process error variation objectively by treating them as random effects, which is considered an essential feature in next-generation stock assessment platforms [@puntEssentialFeaturesNextgeneration2020].
+
+The Stock Synthesis (SS3) platform [@methotStockSynthesisBiological2013] is written in ADMB and has become very popular to implement assessment models for tuna stocks worldwide, principally including catch, indices of abundance, marginal size compositions and, in some cases, conditional age-at-length information. The State-space Assessment Model -SAM- [@bergAccountingCorrelatedObservations2016; @nielsenEstimationTimevaryingSelectivity2014] and the Woods Hole Assessment Model -WHAM- [@stockWoodsHoleAssessment2021] are two popular age-structured SSAM platforms written in TMB that can model recruitment, age-based selectivity, natural and fishing mortality or survival, and environmental variables using random effects [@millerTemporalEnvironmentalVariation2018; @millerEvaluatingEvidenceAlternative2018; @stockWoodsHoleAssessment2021]. SAM and WHAM are mostly applied to stocks on the east coast of North America and ICES management zones [e.g., @nefscReportBlackSea2023; @icesHaddockMelanogrammusAeglefinus2024; @nefscButterfishResearchTrack2024], where plenty of age information is available. 
+
+The use of age-structured SSAM for tuna stocks has been limited, probably due to the scarce age information for these stocks and the absense of state-space assessment platforms able to include size-specific data or model size-based processes. @mhamedEasternBluefinTuna2017 applied SAM to implement a stock assessment model for eastern Atlantic bluefin tuna (*Thunnus thynnus*), converting marginal size compositions to catch-at-age and index-at-age data. Recently, WHAM was extended to model length-based processes such as selectivity and growth and to allow the use of length compositions or conditional age-at-length (CAAL) as data inputs [@correaModellingTimevaryingGrowth2023]. Likewise, other size- or age-structured SSAMs have been developed to model these processes as length-based rather than age-based [@zhangAgeLengthStructured2022; @hillaryIntegratedStockAssessment2021]. These developments could expand the use of age-structured SSAMs to fish stocks with scarce age information like tunas.
+
+In this study, we implemented a stock assessment model for Indian Ocean (IO) bigeye tuna in WHAM. The source of data to derive the model data inputs (catch, indices of abundance, marginal size compositions) was the same as that used in the SS3 IO bigeye assessment model presented in the Working Party of Tropical Tunas 27th (WPTT27). The model configurations considered uncertainty in key fishery (e.g., selectivity) and biological processes. We also show examples of WHAM capabilities to estimate stock status and conduct model diagnostics and projections. Our main goal is to increase the use of SSAMs for tuna stocks since they may become more popular in future years.
+
+# Methods
+
+## Model inputs
+
+Catch (1979-2023) and size (1979-2023) information was provided by the IOTC Secretariat in a comma-separated values (CSV) format. Two indices of abundance were also available: joint longline and purse seine fishing on associated schools. These indices can also be found online at <https://iotc.org/documents/standardised-cpue-index-bigeye-tuna>.
+
+## Definition of fisheries
+
+Our assessment adopted the equivalent fisheries definitions used in the previous SS3 stock assessments. Seven *fishery groups* were defined based on fleet, gear, purse seine set type, and type of vessel in the case of the longline fleet (@tbl-fishery-codes), representing relatively homogeneous fishing units with similar selectivity and catchability characteristics that do not vary greatly over time. 
+
+A brief description of each *fishery group* is provided below.
+
+- *Freezing longline fisheries (LL)*, or all those using drifting longlines for which one or more of the following three conditions apply: (i) the vessel hull is made up of steel; (ii) the vessel length overall of 30 m or greater; (iii) the majority of the catches of target species are preserved frozen or deep-frozen.
+
+- *Fresh-tuna longline fisheries (LF)*, or all those using drifting longlines and made of vessels (i) having fibreglass, fibre-reinforced plastic, or wooden hull; (ii) having length overall less than 30 m; (iii) preserving the catches of target species fresh or in refrigerated seawater.
+
+- The purse-seine catch and effort data were apportioned into two separate method fisheries: catches from sets on associated schools of tuna (log and drifting FAD sets; *PSLS*) and sets on unassociated schools (free schools; *PSFS*). 
+
+- Baitboat fishery (*BB*), which included the pole-and-line (essentially the Maldives fishery) and small seine fisheries (catching small fish).
+
+- Line fishery (*LINE*), representing a mixture of gears using handlines, and small longlines (including the gillnet and longline combination fishery of Sri Lanka).
+
+- A miscellaneous "Other" fishery (*OTHER*) was defined, comprising catches from artisanal fisheries other than those specified above (e.g. gillnet, trolling and a range of small gears).
+
+These fishery groups were used as model fleets in WHAM.
+
+## Aggregated catch
+
+The catch dataset was composed of information about time (year and month), CPCs, gear type, type of association of the fish school, grid code at a $5^\circ\times 5^\circ$ resolution, and catch in weight (metric tons) and numbers. The grid code contained information on the grid resolution, quadrant, and longitude and latitude of the corner of the grid. 
+
+To process this dataset and generate the catch inputs for WHAM, we first identified the fishery groups based on CPC, gear type, and the type of association of the fish school. Then, catch was summed by year and fishery group.
+
+## Size data {#sec-size}
+
+The size data was composed of information about time (year and month), CPC, gear type, type of association of the fish school, grid code, number of fish sampled per fork length bin (cm), and the score of reporting quality (RQ). The RQ score is a proxy of the quality (e.g., sampling coverage, reporting details) of the size information provided to the IOTC Secretariat by CPCs [@herreraProposalSystemAssess2010; @iotcReviewStatisticalData2024]. The length bin width was 2 cm and the length bins spanned from 10 to 340 cm. The size dataset had six main types of grid dimensions (see @tbl-grid-size and @fig-map-grid-agg1), although most of them were category 5 or 6. The data were collected from a variety of sampling programs, which are described in @fuPreliminaryIndianOcean2022.
+
+To process this dataset and generate the size compositions inputs for WHAM, we first identified the fishery groups based on CPC, gear type, and the type of association of the fish school. Then, we reduced the number of length bins in the data by summing the number of sampled fish $\geq$ 198 cm and assigning it to the 198 cm length bin. The fishery group was assigned based on the CPC, gear type, and type of association of the fish school. Then, we converted the length bin width from 2 to 4 cm. To do so, we summed the number of sampled fish from pairs of length bins (e.g., 10 and 12 cm were summed and assigned to 10 cm, 14 and 16 cm were summed and assigned to 14 cm, and so on). After this conversion, we had a total of 48 length bins. Finally, the number of sampled fish per length bin was summed and the RQ was averaged by year and fishery group.
+
+The RQ was used as input sample size in WHAM. Due to lower scores of RQ represent better quality, we inverted the RQ scores from a minimum of 2 (corresponded to an original RQ of 6) and maximum of 6 (corresponded to an original RQ of 0). Also, we removed size compositions for for *LINE*, *OTHER*, *BB* fisheries before 2008 due to inconsistent samples.
+
+## Indices
+
+### Longline (LL) CPUE {#sec-llcpue}
+
+Standardised LL CPUE indices (1979-2023) were available from a joint workshop held by Japan, Korea, and Taiwan [@kitakadoUpdateJointCPUE2025]. The indices were derived following the methodology developed for previous stock assessments and were provided for the four assessment areas used in the last assessment model [@fuPreliminaryIndianOcean2022] in a quarterly temporal resolution.
+
+We determined regional scaling factors that incorporated both the size of the region and the relative catch rate to estimate the relative level of exploitable longline biomass among regions (method ‘8’ in @hoyleScalingFactorsMultiregion2020). After scaling the indices by region, we grouped them by summing the values by quarter. Then, we grouped this index by year by averaging the LL CPUE quarterly values. A coefficient of variation (CV) of 0.2 was assumed for all years.
+
+### Purse seine (PSLS) CPUE
+
+A standardised index of the biomass of bigeye caught by European purse seiners (Spain and France) from sets on associated tuna schools (1991 – 2023) was developed (@fig-ts-ps-cpue, @correaStandardizedCatchUnit2025) and provided in a quarterly temporal resolution. Data used to developed this index mainly come from the western IO and mainly informs on the biomass of juvenile bigeye. We averaged the quarterly CPUE values by year to be included in WHAM. The CV associated with each quarterly value was also averaged and then rescaled to a mean of 0.2 to be used as observation error in WHAM. 
+
+# Model parameters
+
+## Population dynamics
+
+The model configurations were single-area and partitioned the population into 11 yearly age classes ($1-11+$), both sexes combined. The last age-class ($11+$) comprises a *plus group* in which mortality and other characteristics are assumed to be constant. Age quantities are partitioned into 48 4-cm length bins ranging from 10 to 198 cm, which covers the main size range observed for bigeye in the IO. The population is monitored in the model at yearly time steps, extending through a time window of 1979–2023. The main population dynamics processes are as follows.
+
+### Recruitment
+
+Recruitment in WHAM is defined as the appearance of age-1 fish in the population. Recruitment was assumed to be a function of spawning biomass via a Beverton and Holt stock-recruitment relationship (SRR) with a fixed value of steepness ($h$). Typically, fisheries data are not very informative about the steepness parameter of the SRR parameters [@leeCanSteepnessStock2012]; hence, the steepness parameter was fixed at a moderate value (0.80) and the sensitivity of the model results to the value of steepness was explored by setting it to lower (0.7) and higher (0.9) values as performed in other tuna RFMOs [@harleyPreliminaryExaminationSteepness2011]. Deviates from the SRR curve (*recruitment deviates*) were modelled from 1979 to 2023 as random effects while its standard deviation ($\sigma_R$) was estimated.
+
+### Initial population
+
+The population age structure at the start of the first year (i.e., 1979) was assumed to be in equilibrium state, estimating the number of fish at age 1 and an initial fishing mortality to derive the abundance of other age classes.
+
+### Somatic growth and sexual maturity {#sec-growth}
+
+The 2022 bigeye stock assessment used growth parameters that replicated the growth curve derived by @evesonUpdatedGrowthEstimates2012. In the WPTT(DP) 27, @evesonUpdatingEstimationAge2025 presented growth estimates using otolith information from the GERUNDIO project and found quite different growth patterns compared to previous studies. In our WHAM assessment models, we use the @evesonUpdatingEstimationAge2025 estimates by modelling a von Bertalanffy growth curve. For the length-weight relationship, we use the estimates found in @chassotLengthweightRelationshipsTropical2016. Regarding sexual maturity, we modelled size-based logistic maturity using the parameters from the last stock assessment held in 2022.
+
+### Natural mortality
+
+For the current assessment, we used the $M_a$ estimates following @hamelDevelopmentConsiderationsApplication2022 and then rescaled based on @lorenzenPopulationDynamicsPotential2005. This relationship models high $M$ for younger fish, which then declines as fish get older. In WHAM, the reference natural mortality is calculated from $M_{ref} = 5.4/A_{max}$, where $A_{max}$ is the assumed maximum age in the population equal to 14.7 years based on @evesonUpdatingEstimationAge2025. $M_{ref}$ is the natural mortality that corresponds to the age at the 95% maturity, assumed to be 3.75 years based on the maturity and growth curve. Then, the rescaling of natural mortality at age is performed as a function of the $L_\infty$ and $k$ growth parameters. 
+## Fishery dynamics
+
+### Fishing mortality
+
+Yearly fishing mortality per fleet was estimated as fixed effect through the use of fishing deviates.
+
+### Catchability
+
+We estimated the catchability parameters for each index (*LL* or *LL* and *PSLS*) included in the stock assessment model.
+
+### Selectivity 
+
+Selectivity was assumed to be size-based for all fleets in our model.
+
+- Longline (*LL*): parameterised with a logistic function that constrains the older age classes to be fully selected (“flat top”). Some configurations also modelled time-variant selectivity with two blocks: before and after 2000, with a logistic parametrization for both periods. The *LL* CPUE index was linked to this selectivity.
+
+- Purse seine on free schools (*PSFS*): modelled using cubic splines with five nodes. The nodes were specified to approximate the main inflection points of the selectivity function. 
+
+- Purse seine on log schools (*PSLS*): modelled using a double-normal parametrization. The *PSLS* CPUE index was linked to this selectivity.
+
+- Longline fresh tuna (*FL*): parameterised with a logistic function that constrains the older age classes to be fully selected (“flat top”).
+
+- Line (*LINE*): parameterised with a logistic function.
+
+- Baitboat (*BB*): mirrored the selectivity of the *PSLS* fishery.
+
+- Other (*OTHER*): mirrored the selectivity of the *PSFS* fishery.
+
+## Likelihood components
+
+The total likelihood is composed of a number of components, including the fit to the catch data, indices of abundance (CPUE), and length frequency data. There are also contributions to the total likelihood from the recruitment deviates and priors on the individual model parameters. 
+
+### Catch
+
+The catch data assumed a lognormal error structure. There is no objective estimates of the degree in uncertainty in aggregated catch data, therefore, like in the 2022 assessment, we assumed a value of 0.1 for every observation.
+
+### Indices of abundance
+
+The CPUE indices assumed a lognormal error structure. The 2022 assessment assumed a CV for every *LL* CPUE observation of 0.2. In the current assessment, we followed the same approach. For the *PSLS* index, we used the CV derived from the standardization method.
+
+### Length frequency
+
+The length frequency assumed a multinomial error structure. The current assessment treated the RQ values (see @sec-size) as the input sample size.
+
+## Parameter estimation and uncertainty
+
+The parameters of the model were estimated by minimising the sum of the negative log-likelihood components associated with each of the data components plus the negative log of the probability density functions of the priors and recruitment deviates. Models were run with a gradient criterion of $10^{-4}$. The Hessian matrix computed at the mode of the posterior distribution was used to obtain estimates of the covariance matrix, which was used in combination with the Delta method to compute approximate confidence intervals for parameters of interest.
+
+The structural uncertainty grid attempts to describe the main sources of structural and data uncertainty in the assessment. For the current assessment, we have continued with a factorial grid of model runs which incorporates the following sources of uncertainties: 
+
+- Selectivity of the *LL* fishery: constant over the years or with two blocks: before and after 2000.
+- Steepness: 0.7, 0.8, and 0.9.
+- Including the *PSLS* CPUE index.
+
+### Diagnostics
+
+In order to evaluate model misspecification, we applied a series of diagnostics tools described in @carvalhoCookbookUsingModel2021 to candidate reference models. Regarding convergence, we examined the maximum final gradient, invertible Hessian, and a jittering analysis to evaluate if models converged to a global solution. 
+
+For highly complex population models fitted to large amounts of often conflicting data, it is common to have difficulties estimating total abundance. Therefore, a likelihood profile analysis was undertaken of the marginal posterior likelihood with respect to natural mortality ($M$). Retrospective analyses were conducted as a general test of the stability of the model, as a robust model should produce similar output when rerun with data for the terminal years sequentially excluded [@cadiganLocalInfluenceDiagnostics2005]. We used the Mohn's $\rho$ [@mohnRetrospectiveProblemSequential1999] as an indicator of retrospective patterns for spawning biomass, recruitment, and $F/F_{MSY}$. Finally, we also evaluated possible misspecification of biological parameters by identifying trends in recruitment deviates [@merinoInvestigatingTrendsProcess2022]. 
+
+## Stock status
+
+Maximum Sustainable Yield (MSY) based estimates of stock status were determined for the final candidate reference models, and those included in the uncertainty grid. MSY based reference points were derived for the model options based on the average F-at-age matrix for every year. 
+
+## Projections
+
+We also ran 5-year short-term projections at $F_{MSY}$.
+
+# Results
+
+
+# Discussion
+
+
+# References
+
+::: {#refs}
+:::
+
+{{< pagebreak >}}
+
+# Tables
+
+
+
+# Figures
+
