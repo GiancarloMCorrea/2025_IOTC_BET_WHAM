@@ -11,10 +11,10 @@ source('code/auxiliary_functions.R')
 # Read raw data in:
 dat <- read_xlsx(file.path('data/raw/CPUE', 'IOTC_BET_CPUE_DL_2025_06_11.xlsx'))
 
-dat_R1n <- dat[complete.cases(dat),1:2] %>% mutate(area = 'R1n') 
-dat_R1s <- dat[complete.cases(dat),3:4] %>% mutate(area = 'R1s')
-dat_R2 <- dat[complete.cases(dat),5:6] %>% mutate(area = 'R2')
-dat_R3 <- dat[complete.cases(dat),7:8] %>% mutate(area = 'R3')
+dat_R1n <- dat[,1:2] %>% mutate(area = 'R1n') %>% na.omit
+dat_R1s <- dat[,3:4] %>% mutate(area = 'R1s') %>% na.omit
+dat_R2 <- dat[,5:6] %>% mutate(area = 'R2') %>% na.omit
+dat_R3 <- dat[,7:8] %>% mutate(area = 'R3') %>% na.omit
 colnames(dat_R1n) = c('Yr', 'Obs', 'Area')
 colnames(dat_R1s) = c('Yr', 'Obs', 'Area')
 colnames(dat_R2) = c('Yr', 'Obs', 'Area')

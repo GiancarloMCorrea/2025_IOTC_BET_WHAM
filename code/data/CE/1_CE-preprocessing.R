@@ -9,7 +9,7 @@ source('code/auxiliary_functions.R')
 # -------------------------------------------------------------------------
 
 # Data come from https://iotc.org/WPTT/27DP/Data/03-CE
-RawData = read.csv(file.path('data/raw/CE', "IOTC-WPTT27-DP-BET-CEraised_1950_2023.csv"))
+RawData = read.csv(file.path('data/raw/CE', "IOTC-WPTT27-AS-BET-CEraised_1950_2024.csv"))
 
 Data = RawData %>% 
   filter(Species == 'BET') %>%
@@ -37,9 +37,6 @@ Data = Data %>%
 
 # Check:
 table(substring(Data$Grid, 1, 1))
-which(is.na(Data$FisheryCode))
-
-# Check again:
 which(is.na(Data$FisheryCode))
 
 # Add lon lat info:

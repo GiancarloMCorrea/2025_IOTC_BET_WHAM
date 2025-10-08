@@ -50,4 +50,5 @@ rsconnect/
 
 data/raw
 
-models/
+models/*
+figures/*

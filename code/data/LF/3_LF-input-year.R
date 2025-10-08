@@ -76,12 +76,21 @@ for(k in seq_along(fleet_order)) {
   lf_use[row_pos, k] = 1
 }
 
-# Perform some filtering:
+
+# -------------------------------------------------------------------------
+# Perform some filtering after analyzing the data:
+
 # Remove LF data before yr 250 (too sparse!) for fleets 5, 6 and 7 
 pos_rem = mod_str_yr:mod_end_yr < 2008
 lf_use[pos_rem, c(5, 6, 7)] = 0
+# Put 0 for LL len comps for 2024 (fish too large!)
+lf_input[1,46,dim(lf_input)[3]] = lf_input[1,46,(dim(lf_input)[3] - 1)]
+# Do not use year 2020 for PSFS, too weird:
+pos_rem = mod_str_yr:mod_end_yr == 2020
+lf_use[pos_rem, 2] = 0
 
-# Save SS catch input
+# -------------------------------------------------------------------------
+# Save WHAM LF input
 save(lf_input, file = file.path('data/processed', 'LF_input-year.RData'))
 save(lf_samp, file = file.path('data/processed', 'LF_samp-year.RData'))
 save(lf_use, file = file.path('data/processed', 'LF_use-year.RData'))

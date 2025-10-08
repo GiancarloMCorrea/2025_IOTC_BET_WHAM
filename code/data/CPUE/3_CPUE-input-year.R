@@ -62,7 +62,7 @@ data = data %>% arrange(Yr)
 pos_row = match(data$Yr, mod_str_yr:mod_end_yr)
 cpue_input[pos_row, 1] = data$pr7994_m8_2R
 cpue_use[pos_row, 1] = 1
-cpue_cv[pos_row, 1] = 0.2
+cpue_cv[pos_row, 1] = 0.1 # weight of the CPUE index
 
 # -------------------------------------------------------------------------
 

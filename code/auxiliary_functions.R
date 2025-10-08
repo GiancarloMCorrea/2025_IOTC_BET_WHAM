@@ -668,7 +668,7 @@ aggregate.ssMod <- function(scs, path_scs){
 
 # Select first year (when model starts):
 mod_str_yr = 1979
-mod_end_yr = 2023
+mod_end_yr = 2024
 # First and last quarter:
 mod_str_qt = yearqtr2qtr(mod_str_yr, 1, 1950, 13)
 mod_end_qt = yearqtr2qtr(mod_end_yr, 4, 1950, 13)
