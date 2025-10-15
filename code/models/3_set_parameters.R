@@ -6,11 +6,11 @@
 # Pointer 5: LINE: len-logistic
 
 # Create WHAM input: 
-input1 = wham::prepare_wham_input(model_name = "Bet_1",
+input_wham = wham::prepare_wham_input(model_name = "Bet_1",
                                   basic_info = input_data, 
-                                  NAA_re = list(N1_model = 1, N1_pars = c(3.5e+04, 0.136),
+                                  NAA_re = list(N1_model = 1, N1_pars = c(5e+04, 0.1),
                                                 #N1_model = 0, N1_pars = c(34600, 19300, 11700, 7400, 4800, 3200, 2100, 1400, 1000, 3200),
-                                                recruit_model = 3, recruit_pars = c(h_init, 3.5e+04), use_steepness = TRUE,
+                                                recruit_model = 3, recruit_pars = c(h_init, 4e+04), use_steepness = TRUE,
                                                 #recruit_model = 2, recruit_pars = 3.5e+04,
                                                 sigma = 'rec', cor = 'iid'), # Recruitment parameters
                                   M = list(model = 'Lorenzen', 
@@ -29,10 +29,10 @@ input1 = wham::prepare_wham_input(model_name = "Bet_1",
 ) 
 
 # Fix some parameters:
-# input1$par$log_NAA_sigma = log(0.55)
-# input1$map$log_NAA_sigma = factor(NA)
-# input1$random = NULL
-input1$map$mean_rec_pars <- factor(c(NA, 1)) # Fix steepness
-input1$par$log_F1 = log(c(0.02, rep(0.0001, times = 6))) # initial values for F1
-# input1$map$log_N1_pars = factor(c(1, NA))
-# input1$map$log_N1_pars = factor(rep(NA, times = length(input1$par$log_N1_pars)))
+input_wham$par$log_NAA_sigma = log(0.2) # closer to best estimate
+# input_wham$map$log_NAA_sigma = factor(NA)
+# input_wham$random = NULL
+input_wham$map$mean_rec_pars <- factor(c(NA, 1)) # Fix steepness
+input_wham$par$log_F1 = log(c(0.02, rep(0.0001, times = 6))) # initial values for F1
+# input_wham$map$log_N1_pars = factor(c(1, NA))
+# input_wham$map$log_N1_pars = factor(rep(NA, times = length(input_wham$par$log_N1_pars)))

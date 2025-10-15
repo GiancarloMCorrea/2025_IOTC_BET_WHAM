@@ -676,4 +676,7 @@ mod_end_qt = yearqtr2qtr(mod_end_yr, 4, 1950, 13)
 # fLEET Order
 fleet_order = c('LL', 'PSFS', 'PSLS', 'FL', 'LINE', 'BB', 'OTHER')
 
+# Model labels (from 1 to 4):
+model_labels = c('1BlockLL_noLS', '1BlockLL_LS', 
+                  '2BlockLL_noLS', '2BlockLL_LS')
 

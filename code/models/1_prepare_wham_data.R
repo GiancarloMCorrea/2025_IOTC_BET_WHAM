@@ -23,7 +23,7 @@ input_data$agg_catch = as.matrix(catch_df) # Obs
 input_data$catch_cv = matrix(0.1, ncol = input_data$n_fleets, nrow = n_years) # Obs error
 # Length comps (fishery):
 input_data$catch_pal = lf_input # Obs
-input_data$catch_NeffL = scales::rescale(lf_samp, to=c(40, 10)) # Obs error, original c(8,2)
+input_data$catch_NeffL = scales::rescale(lf_samp, to=c(5, 1.25)*4) # Obs error
 input_data$use_catch_pal = lf_use # 1 = fit, 0 = don't fit
 # Dont forget to turn off the use of paa (default):
 input_data$use_catch_paa = matrix(0, nrow = n_years, ncol = input_data$n_fleets) # 1 = fit, 0 = don't fit
@@ -44,5 +44,5 @@ input_data$Lorenzen_Age = 3.75 # in quarters
 # input_data$Age_Nodes = c(2, 3, 6, 16, 20)
 input_data$Len_Nodes = c(30, 50, 82, 122, 158)
 # init values for FMSY:
-input_data$FMSY_init = c(rep(0.05, times = 5), 
-                         rep(0.1, times = n_years-5)) # Important initial values to get ADREPORT
+input_data$FMSY_init = c(rep(0.2, times = 5), 
+                         rep(0.3, times = n_years-5)) # Important initial values to get ADREPORT

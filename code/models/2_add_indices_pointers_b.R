@@ -20,12 +20,12 @@ input_selex = list(model = c('len-logistic',
                              'len-double-normal',
                              'len-logistic',
                              'len-logistic'),
-                   initial_pars = list(c(100, 2),
-                                       c(0.001, 0.9, 0.2, 0.99, 0.65), 
-                                       c(45, -3, 7.5, 4, 9, -5),
-                                       c(100, 2),
-                                       c(100, 6)),
-                   fix_pars = list(NULL, c(1,3), c(2,3,5,6), NULL, 2),
+                   initial_pars = list(c(95, 7.7),
+                                       c(0.001, 0.34, 0.2, 0.42, 0.23), 
+                                       c(38, -3, 0, 6.7, 7, -5),
+                                       c(105, 10),
+                                       c(57, 6)),
+                   fix_pars = list(NULL, c(1,3), c(3,5,6), NULL, 2),
                    n_selblocks = 5)
 
 # -------------------------------------------------------------------------

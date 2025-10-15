@@ -15,11 +15,16 @@ authors:
   - name: Yang Wang
     affiliations:
       - ref: ush
+  - name: Genevieve Phillips
+    affiliations:
+      - ref: iotc
 affiliations:
   - id: azti
     name: AZTI, Marine Research, Basque Research and Technology Alliance (BRTA), Txatxarramendi ugartea z/g, 48395 Sukarrieta (Bizkaia), Spain
   - id: ush
     name: College of Marine Living Resource Sciences and Management, Shanghai Ocean University, Shanghai, China
+  - id: iotc
+    name: Indian Ocean Tuna Commission, Mahe, Seychelles
 filters:
   - authors-block
 link-citations: true
@@ -41,12 +46,13 @@ knitr::opts_chunk$set(echo = FALSE,
 ```
 
 ```{r}
-# remotes::install_github("wmoldham/rbbt") # temporarily, until error is fixed
+# remotes::install_github("paleolimbot/rbbt")
 require(knitr)
 require(rbbt)
 require(dplyr)
 require(flextable)
 require(this.path)
+source('../code/auxiliary_functions.R')
 qmd_file = this.path()
 options(knitr.kable.NA = '')
 # This will automatically update the BIB file:
@@ -62,7 +68,6 @@ Summary
 
 ::: {custom-style="Abstract"}
 Add abstract
-
 :::
 
 ::: {custom-style="Keywords"}
@@ -77,73 +82,75 @@ bigeye tuna, state-space models, stock assessment models, Indian Ocean, Woods Ho
 
 Age-structured population dynamics models were initially limited to the use of age-specific data to estimate abundance-at-age and fishing mortality-at-age. Since the late 1990s, age-structured assessment platforms have been developed to include size-specific data and model the age-size transition internally [@methotStockSynthesisBiological2013; @fournierMULTIFANCLLengthbasedAgestructured1998], expanding their use for stocks with scarce age information like tunas. Most of these platforms were written in AD Model Builder (ADMB), which allowed for the efficient and accurate estimation of a large number of parameters [@fournierADModelBuilder2012]. During the last decade, age-structured state-space assessment models (SSAMs) have rapidly become popular due to the development of Template Model Builder (TMB) software, which leverages the Laplace approximation to efficiently integrate out random effects [@kristensenTMBAutomaticDifferentiation2016]. State-space models are a type of hierarchical model with two levels: 1) unobserved states or processes that represent the true state of nature that may vary over time, and 2) observations with associated errors of the state of nature [@auger-metheGuideStateSpace2021]. The key strength of models written in TMB is their ability to estimate process error variation objectively by treating them as random effects, which is considered an essential feature in next-generation stock assessment platforms [@puntEssentialFeaturesNextgeneration2020].
 
-The Stock Synthesis (SS3) platform [@methotStockSynthesisBiological2013] is written in ADMB and has become very popular to implement assessment models for tuna stocks worldwide, principally including catch, indices of abundance, marginal size compositions and, in some cases, conditional age-at-length information. The State-space Assessment Model -SAM- [@bergAccountingCorrelatedObservations2016; @nielsenEstimationTimevaryingSelectivity2014] and the Woods Hole Assessment Model -WHAM- [@stockWoodsHoleAssessment2021] are two popular age-structured SSAM platforms written in TMB that can model recruitment, age-based selectivity, natural and fishing mortality or survival, and environmental variables using random effects [@millerTemporalEnvironmentalVariation2018; @millerEvaluatingEvidenceAlternative2018; @stockWoodsHoleAssessment2021]. SAM and WHAM are mostly applied to stocks on the east coast of North America and ICES management zones [e.g., @nefscReportBlackSea2023; @icesHaddockMelanogrammusAeglefinus2024; @nefscButterfishResearchTrack2024], where plenty of age information is available. 
+The Stock Synthesis (SS3) platform [@methotStockSynthesisBiological2013] is written in ADMB and has become very popular to implement assessment models for tuna stocks worldwide, principally including catch, indices of abundance, marginal size compositions and, in some cases, tagging and conditional age-at-length data. Traditionally, estimating process error variation in models written in ADMB like SS3 is done using the “penalized maximum likelihood” approach, which estimates penalized deviations $\epsilon_y \sim N(0,\sigma_\epsilon^2)$ from the mean parameter while subjectively fixing or iteratively tuning the penalty term $\sigma_\epsilon^2$ [@methotAdjustingBiasDue2011], or approximating it [@thorsonRandomEffectEstimation2015].
 
-The use of age-structured SSAM for tuna stocks has been limited, probably due to the scarce age information for these stocks and the absense of state-space assessment platforms able to include size-specific data or model size-based processes. @mhamedEasternBluefinTuna2017 applied SAM to implement a stock assessment model for eastern Atlantic bluefin tuna (*Thunnus thynnus*), converting marginal size compositions to catch-at-age and index-at-age data. Recently, WHAM was extended to model length-based processes such as selectivity and growth and to allow the use of length compositions or conditional age-at-length (CAAL) as data inputs [@correaModellingTimevaryingGrowth2023]. Likewise, other size- or age-structured SSAMs have been developed to model these processes as length-based rather than age-based [@zhangAgeLengthStructured2022; @hillaryIntegratedStockAssessment2021]. These developments could expand the use of age-structured SSAMs to fish stocks with scarce age information like tunas.
+The State-space Assessment Model -SAM- [@bergAccountingCorrelatedObservations2016; @nielsenEstimationTimevaryingSelectivity2014] and the Woods Hole Assessment Model -WHAM- [@stockWoodsHoleAssessment2021] are two popular age-structured SSAM platforms written in TMB that can model recruitment, age-based selectivity, natural and fishing mortality or survival, and environmental variables using random effects [@millerTemporalEnvironmentalVariation2018; @millerEvaluatingEvidenceAlternative2018; @stockWoodsHoleAssessment2021]. SAM and WHAM are mostly applied to stocks on the east coast of North America and ICES management zones [e.g., @nefscReportBlackSea2023; @icesHaddockMelanogrammusAeglefinus2024; @nefscButterfishResearchTrack2024], where plenty of age information is available.
 
-In this study, we implemented a stock assessment model for Indian Ocean (IO) bigeye tuna in WHAM. The source of data to derive the model data inputs (catch, indices of abundance, marginal size compositions) was the same as that used in the SS3 IO bigeye assessment model presented in the Working Party of Tropical Tunas 27th (WPTT27). The model configurations considered uncertainty in key fishery (e.g., selectivity) and biological processes. We also show examples of WHAM capabilities to estimate stock status and conduct model diagnostics and projections. Our main goal is to increase the use of SSAMs for tuna stocks since they may become more popular in future years.
+The use of age-structured SSAM for tuna stocks has been limited, probably due to the scarce age information for these stocks and the absence of state-space assessment platforms able to include size-specific data or model size-based processes. @mhamedEasternBluefinTuna2017 applied SAM to implement a stock assessment model for eastern Atlantic bluefin tuna (*Thunnus thynnus*), converting marginal size compositions and aggregated catch and indices of abundance to catch-at-age and index-at-age data. @correaModellingTimevaryingGrowth2023 extended WHAM (*growth-WHAM* hereafter) to model length-based processes such as selectivity and growth and to allow the use of length compositions or conditional age-at-length (CAAL) as data inputs. Likewise, other size- or age-structured SSAMs have been developed to model these processes as length-based rather than age-based [@zhangAgeLengthStructured2022; @hillaryIntegratedStockAssessment2021]. These developments could expand the use of age-structured SSAMs to fish stocks with scarce age information like tunas.
+
+In this study, we implemented a stock assessment model for Indian Ocean (IO) bigeye tuna in WHAM. The source of data to derive the model data inputs (catch, indices of abundance, marginal size compositions) was the same as that used in the SS3 IO bigeye assessment model presented in the Working Party of Tropical Tunas 27th (WPTT27). The model configurations considered uncertainty in key fishery processes (e.g., selectivity) and data inputs. We also show examples of WHAM capabilities to estimate stock status and conduct model diagnostics and projections. The main goal of this study is to present WHAM, and age-structured SSAM, and increase the use of age-structure SSAMs for tuna stocks since they may become more popular in future years.
 
 # Methods
 
 ## Model inputs
 
-Catch (1979-2023) and size (1979-2023) information was provided by the IOTC Secretariat in a comma-separated values (CSV) format. Two indices of abundance were also available: joint longline and purse seine fishing on associated schools. These indices can also be found online at <https://iotc.org/documents/standardised-cpue-index-bigeye-tuna>.
+Catch (1979-2024) and size (1979-2024) information was provided by the IOTC Secretariat in a comma-separated values (CSV) format. Two indices of abundance were also available: joint longline and purse seine fishing on associated schools. These indices can also be found online at <https://iotc.org/documents/standardised-cpue-index-bigeye-tuna>.
 
 ## Definition of fisheries
 
-Our assessment adopted the equivalent fisheries definitions used in the previous SS3 stock assessments. Seven *fishery groups* were defined based on fleet, gear, purse seine set type, and type of vessel in the case of the longline fleet (@tbl-fishery-codes), representing relatively homogeneous fishing units with similar selectivity and catchability characteristics that do not vary greatly over time. 
+Our assessment adopted the equivalent fisheries definitions used in the previous SS3 stock assessments. Seven *fishery groups* were defined based on fleet, gear, purse seine set type, and type of vessel in the case of the longline fleet (@tbl-fishery-codes), representing relatively homogeneous fishing units with similar selectivity and catchability characteristics that do not vary greatly over time.
 
 A brief description of each *fishery group* is provided below.
 
-- *Freezing longline fisheries (LL)*, or all those using drifting longlines for which one or more of the following three conditions apply: (i) the vessel hull is made up of steel; (ii) the vessel length overall of 30 m or greater; (iii) the majority of the catches of target species are preserved frozen or deep-frozen.
+-   *Freezing longline fisheries (LL)*, or all those using drifting longlines for which one or more of the following three conditions apply: (i) the vessel hull is made up of steel; (ii) the vessel length overall of 30 m or greater; (iii) the majority of the catches of target species are preserved frozen or deep-frozen.
 
-- *Fresh-tuna longline fisheries (LF)*, or all those using drifting longlines and made of vessels (i) having fibreglass, fibre-reinforced plastic, or wooden hull; (ii) having length overall less than 30 m; (iii) preserving the catches of target species fresh or in refrigerated seawater.
+-   *Fresh-tuna longline fisheries (LF)*, or all those using drifting longlines and made of vessels (i) having fibreglass, fibre-reinforced plastic, or wooden hull; (ii) having length overall less than 30 m; (iii) preserving the catches of target species fresh or in refrigerated seawater.
 
-- The purse-seine catch and effort data were apportioned into two separate method fisheries: catches from sets on associated schools of tuna (log and drifting FAD sets; *PSLS*) and sets on unassociated schools (free schools; *PSFS*). 
+-   The purse-seine catch and effort data were apportioned into two separate fisheries: catches from sets on associated schools of tuna (log and drifting FAD sets; *PSLS*) and sets on unassociated schools (free schools; *PSFS*).
 
-- Baitboat fishery (*BB*), which included the pole-and-line (essentially the Maldives fishery) and small seine fisheries (catching small fish).
+-   Baitboat fishery (*BB*), which included the pole-and-line (essentially the Maldives fishery) and small seine fisheries (catching small fish).
 
-- Line fishery (*LINE*), representing a mixture of gears using handlines, and small longlines (including the gillnet and longline combination fishery of Sri Lanka).
+-   Line fishery (*LINE*), representing a mixture of gears using handlines, and small longlines (including the gillnet and longline combination fishery of Sri Lanka).
 
-- A miscellaneous "Other" fishery (*OTHER*) was defined, comprising catches from artisanal fisheries other than those specified above (e.g. gillnet, trolling and a range of small gears).
+-   A miscellaneous "Other" fishery (*OTHER*) was defined, comprising catches from artisanal fisheries other than those specified above (e.g. gillnet, trolling and a range of small gears).
 
-These fishery groups were used as model fleets in WHAM.
+These fishery groups were used as the model fleets in WHAM.
 
 ## Aggregated catch
 
-The catch dataset was composed of information about time (year and month), CPCs, gear type, type of association of the fish school, grid code at a $5^\circ\times 5^\circ$ resolution, and catch in weight (metric tons) and numbers. The grid code contained information on the grid resolution, quadrant, and longitude and latitude of the corner of the grid. 
+The catch dataset was composed of information about time (year and month), CPCs, gear type, type of association of the fish school, grid code at a $5^\circ\times 5^\circ$ resolution, and catch in weight (metric tons) and numbers. The grid code contained information on the grid resolution, quadrant, and longitude and latitude of the corner of the grid.
 
-To process this dataset and generate the catch inputs for WHAM, we first identified the fishery groups based on CPC, gear type, and the type of association of the fish school. Then, catch was summed by year and fishery group.
+To process this dataset and generate the catch inputs for WHAM, we first identified the fishery groups based on CPC, gear type, and the type of association of the fish school. Then, catch was summed by year and fishery group (@fig-catch).
 
 ## Size data {#sec-size}
 
-The size data was composed of information about time (year and month), CPC, gear type, type of association of the fish school, grid code, number of fish sampled per fork length bin (cm), and the score of reporting quality (RQ). The RQ score is a proxy of the quality (e.g., sampling coverage, reporting details) of the size information provided to the IOTC Secretariat by CPCs [@herreraProposalSystemAssess2010; @iotcReviewStatisticalData2024]. The length bin width was 2 cm and the length bins spanned from 10 to 340 cm. The size dataset had six main types of grid dimensions (see @tbl-grid-size and @fig-map-grid-agg1), although most of them were category 5 or 6. The data were collected from a variety of sampling programs, which are described in @fuPreliminaryIndianOcean2022.
+The size data was composed of information about time (year and month), CPC, gear type, type of association of the fish school, grid code, number of fish sampled per fork length bin (cm), and the score of reporting quality (RQ). The RQ score is a proxy of the quality (e.g., sampling coverage, reporting details) of the size information provided to the IOTC Secretariat by CPCs [@herreraProposalSystemAssess2010; @iotcReviewStatisticalData2024]. The length bin width was 2 cm and the length bins spanned from 10 to 340 cm. The size dataset had six main types of grid dimensions, although most of them were category 5 ($1\times 1^\circ$) or 6 ($5\times 5^\circ$). The data were collected from a variety of sampling programs, which are described in @fuPreliminaryIndianOcean2022.
 
-To process this dataset and generate the size compositions inputs for WHAM, we first identified the fishery groups based on CPC, gear type, and the type of association of the fish school. Then, we reduced the number of length bins in the data by summing the number of sampled fish $\geq$ 198 cm and assigning it to the 198 cm length bin. The fishery group was assigned based on the CPC, gear type, and type of association of the fish school. Then, we converted the length bin width from 2 to 4 cm. To do so, we summed the number of sampled fish from pairs of length bins (e.g., 10 and 12 cm were summed and assigned to 10 cm, 14 and 16 cm were summed and assigned to 14 cm, and so on). After this conversion, we had a total of 48 length bins. Finally, the number of sampled fish per length bin was summed and the RQ was averaged by year and fishery group.
+To process this dataset and generate the size compositions inputs for WHAM, we first filtered the data to remove inconsistent size samples using the criterion followed in official 2025 IO bigeye stock assessment. Then, we identified the fishery groups based on CPC, gear type, and the type of association of the fish school. Then, we reduced the number of length bins in the data by summing the number of sampled fish $\geq$ 198 cm and assigning it to the 198 cm length bin. The fishery group was assigned based on the CPC, gear type, and type of association of the fish school. Then, we converted the length bin width from 2 to 4 cm. To do so, we summed the number of sampled fish from pairs of length bins (e.g., 10 and 12 cm were summed and assigned to 10 cm, 14 and 16 cm were summed and assigned to 14 cm, and so on). After this conversion, we had a total of 48 length bins. Finally, the number of sampled fish per length bin was summed and the RQ was averaged by year and fishery group (@fig-len-1, @fig-len-2, @fig-len-3, @fig-len-4, @fig-len-5, @fig-len-6, @fig-len-7).
 
-The RQ was used as input sample size in WHAM. Due to lower scores of RQ represent better quality, we inverted the RQ scores from a minimum of 2 (corresponded to an original RQ of 6) and maximum of 6 (corresponded to an original RQ of 0). Also, we removed size compositions for for *LINE*, *OTHER*, *BB* fisheries before 2008 due to inconsistent samples.
+The RQ was used as input sample size in WHAM. Due to lower scores of RQ represent better quality, we inverted the RQ scores from a minimum of 5 (corresponded to an original RQ of 6) and maximum of 20 (corresponded to an original RQ of 0). Also, we removed size compositions for for *LINE*, *OTHER*, *BB* fisheries before 2008 due to inconsistent samples.
 
 ## Indices
 
 ### Longline (LL) CPUE {#sec-llcpue}
 
-Standardised LL CPUE indices (1979-2023) were available from a joint workshop held by Japan, Korea, and Taiwan [@kitakadoUpdateJointCPUE2025]. The indices were derived following the methodology developed for previous stock assessments and were provided for the four assessment areas used in the last assessment model [@fuPreliminaryIndianOcean2022] in a quarterly temporal resolution.
+Standardised LL CPUE indices (1979-2024) were available from a joint workshop held by Japan, Korea, and Taiwan [@kitakadoUpdateJointCPUE2025]. The indices were derived following the methodology developed for previous stock assessments and were provided for the four assessment areas used in the last assessment model [@fuPreliminaryIndianOcean2022] in a quarterly temporal resolution.
 
-We determined regional scaling factors that incorporated both the size of the region and the relative catch rate to estimate the relative level of exploitable longline biomass among regions (method ‘8’ in @hoyleScalingFactorsMultiregion2020). After scaling the indices by region, we grouped them by summing the values by quarter. Then, we grouped this index by year by averaging the LL CPUE quarterly values. A coefficient of variation (CV) of 0.2 was assumed for all years.
+We determined regional scaling factors that incorporated both the size of the region and the relative catch rate to estimate the relative level of exploitable longline biomass among regions (method ‘8’ in @hoyleScalingFactorsMultiregion2020). After scaling the indices by region, we grouped them by summing the values by quarter. Then, we grouped this index by year by averaging the LL CPUE quarterly values (@fig-index). A coefficient of variation (CV) of 0.1 was assumed for all years.
 
 ### Purse seine (PSLS) CPUE
 
-A standardised index of the biomass of bigeye caught by European purse seiners (Spain and France) from sets on associated tuna schools (1991 – 2023) was developed (@fig-ts-ps-cpue, @correaStandardizedCatchUnit2025) and provided in a quarterly temporal resolution. Data used to developed this index mainly come from the western IO and mainly informs on the biomass of juvenile bigeye. We averaged the quarterly CPUE values by year to be included in WHAM. The CV associated with each quarterly value was also averaged and then rescaled to a mean of 0.2 to be used as observation error in WHAM. 
+A standardised index of the biomass of bigeye caught by European purse seiners (Spain and France) from sets on associated tuna schools (1991 – 2023) was developed (@correaStandardizedCatchUnit2025) and provided in a quarterly temporal resolution. Data used to develop this index mainly come from the western IO and mainly informs on the biomass of juvenile bigeye. We averaged the quarterly CPUE values by year to be included in WHAM (@fig-index). The CV associated with each quarterly value was also averaged and then rescaled to a mean of 0.2 to be used as observation error.
 
 # Model parameters
 
 ## Population dynamics
 
-The model configurations were single-area and partitioned the population into 11 yearly age classes ($1-11+$), both sexes combined. The last age-class ($11+$) comprises a *plus group* in which mortality and other characteristics are assumed to be constant. Age quantities are partitioned into 48 4-cm length bins ranging from 10 to 198 cm, which covers the main size range observed for bigeye in the IO. The population is monitored in the model at yearly time steps, extending through a time window of 1979–2023. The main population dynamics processes are as follows.
+The model configurations were single-area and partitioned the population into 10 yearly age classes ($1-10+$), both sexes combined. The last age-class ($10+$) comprises a *plus group* in which mortality and other characteristics are assumed to be constant. Age quantities are partitioned into 48 4-cm length bins ranging from 10 to 198 cm, which covers the main size range observed for bigeye in the IO. The population is monitored in the model at yearly time steps, extending through a time window of 1979–2024. The main population dynamics processes are as follows.
 
 ### Recruitment
 
-Recruitment in WHAM is defined as the appearance of age-1 fish in the population. Recruitment was assumed to be a function of spawning biomass via a Beverton and Holt stock-recruitment relationship (SRR) with a fixed value of steepness ($h$). Typically, fisheries data are not very informative about the steepness parameter of the SRR parameters [@leeCanSteepnessStock2012]; hence, the steepness parameter was fixed at a moderate value (0.80) and the sensitivity of the model results to the value of steepness was explored by setting it to lower (0.7) and higher (0.9) values as performed in other tuna RFMOs [@harleyPreliminaryExaminationSteepness2011]. Deviates from the SRR curve (*recruitment deviates*) were modelled from 1979 to 2023 as random effects while its standard deviation ($\sigma_R$) was estimated.
+Recruitment in WHAM is defined as the appearance of age-1 fish in the population. Recruitment was assumed to be a function of spawning biomass via a Beverton and Holt stock-recruitment relationship (SRR) with a fixed value of steepness ($h$). Typically, fisheries data are not very informative about the steepness parameter of the SRR parameters [@leeCanSteepnessStock2012]; hence, the steepness parameter was fixed at a moderate value (0.80). Deviates from the SRR curve (*recruitment deviates*) were modelled from 1979 to 2024 as random effects while its standard deviation ($\sigma_R$) was estimated.
 
 ### Initial population
 
@@ -151,11 +158,12 @@ The population age structure at the start of the first year (i.e., 1979) was ass
 
 ### Somatic growth and sexual maturity {#sec-growth}
 
-The 2022 bigeye stock assessment used growth parameters that replicated the growth curve derived by @evesonUpdatedGrowthEstimates2012. In the WPTT(DP) 27, @evesonUpdatingEstimationAge2025 presented growth estimates using otolith information from the GERUNDIO project and found quite different growth patterns compared to previous studies. In our WHAM assessment models, we use the @evesonUpdatingEstimationAge2025 estimates by modelling a von Bertalanffy growth curve. For the length-weight relationship, we use the estimates found in @chassotLengthweightRelationshipsTropical2016. Regarding sexual maturity, we modelled size-based logistic maturity using the parameters from the last stock assessment held in 2022.
+The 2022 bigeye stock assessment used growth parameters that replicated the growth curve derived by @evesonUpdatedGrowthEstimates2012. In the WPTT(DP) 27, @evesonUpdatingEstimationAge2025 presented growth estimates using otolith information from the GERUNDIO project and found quite different growth patterns compared to previous studies. In our WHAM assessment models, we use the @evesonUpdatingEstimationAge2025 estimates by modelling a von Bertalanffy growth curve (@fig-growth). For the length-weight relationship, we use the estimates found in @chassotLengthweightRelationshipsTropical2016. Regarding sexual maturity, we modelled size-based logistic maturity using the parameters from the last stock assessment held in 2022. Parameters related to somatic growth and fixed in our models are shown in @tbl-par-fix.
 
 ### Natural mortality
 
-For the current assessment, we used the $M_a$ estimates following @hamelDevelopmentConsiderationsApplication2022 and then rescaled based on @lorenzenPopulationDynamicsPotential2005. This relationship models high $M$ for younger fish, which then declines as fish get older. In WHAM, the reference natural mortality is calculated from $M_{ref} = 5.4/A_{max}$, where $A_{max}$ is the assumed maximum age in the population equal to 14.7 years based on @evesonUpdatingEstimationAge2025. $M_{ref}$ is the natural mortality that corresponds to the age at the 95% maturity, assumed to be 3.75 years based on the maturity and growth curve. Then, the rescaling of natural mortality at age is performed as a function of the $L_\infty$ and $k$ growth parameters. 
+For the current assessment, we used the $M_a$ estimates following @hamelDevelopmentConsiderationsApplication2022 and then rescaled based on @lorenzenPopulationDynamicsPotential2005. This relationship models high $M$ for younger fish, which then declines as fish get older. In WHAM, the reference natural mortality is calculated from $M_{ref} = 5.4/A_{max}$, where $A_{max}$ is the assumed maximum age in the population equal to 14.7 years based on @evesonUpdatingEstimationAge2025. $M_{ref}$ is the natural mortality that corresponds to the age at the 95% maturity, assumed to be 3.75 years based on the maturity and growth curve. Then, the rescaling of natural mortality at age is performed as a function of the $L_\infty$ and $k$ growth parameters (@fig-Matage).
+
 ## Fishery dynamics
 
 ### Fishing mortality
@@ -164,29 +172,29 @@ Yearly fishing mortality per fleet was estimated as fixed effect through the use
 
 ### Catchability
 
-We estimated the catchability parameters for each index (*LL* or *LL* and *PSLS*) included in the stock assessment model.
+We estimated the catchability parameters for each index (*LL* and *PSLS*) included in the stock assessment model.
 
-### Selectivity 
+### Selectivity
 
 Selectivity was assumed to be size-based for all fleets in our model.
 
-- Longline (*LL*): parameterised with a logistic function that constrains the older age classes to be fully selected (“flat top”). Some configurations also modelled time-variant selectivity with two blocks: before and after 2000, with a logistic parametrization for both periods. The *LL* CPUE index was linked to this selectivity.
+-   Longline (*LL*): parameterised with a logistic function that constrains the older age classes to be fully selected (“flat top”). Some model configurations also modelled time-variant selectivity with two blocks: before and after 2000, with a logistic parametrization after 2000 and dome-shaped before 2000. The *LL* CPUE index was linked to this selectivity.
 
-- Purse seine on free schools (*PSFS*): modelled using cubic splines with five nodes. The nodes were specified to approximate the main inflection points of the selectivity function. 
+-   Purse seine on free schools (*PSFS*): modelled using cubic splines with five nodes. The nodes were specified to approximate the main inflection points of the selectivity function.
 
-- Purse seine on log schools (*PSLS*): modelled using a double-normal parametrization. The *PSLS* CPUE index was linked to this selectivity.
+-   Purse seine on log schools (*PSLS*): modelled using a double-normal parametrization. The *PSLS* CPUE index was linked to this selectivity.
 
-- Longline fresh tuna (*FL*): parameterised with a logistic function that constrains the older age classes to be fully selected (“flat top”).
+-   Longline fresh tuna (*FL*): parameterised with a logistic function that constrains the older age classes to be fully selected (“flat top”).
 
-- Line (*LINE*): parameterised with a logistic function.
+-   Line (*LINE*): parameterised with a logistic function.
 
-- Baitboat (*BB*): mirrored the selectivity of the *PSLS* fishery.
+-   Baitboat (*BB*): mirrored the selectivity of the *PSLS* fishery.
 
-- Other (*OTHER*): mirrored the selectivity of the *PSFS* fishery.
+-   Other (*OTHER*): mirrored the selectivity of the *PSFS* fishery.
 
 ## Likelihood components
 
-The total likelihood is composed of a number of components, including the fit to the catch data, indices of abundance (CPUE), and length frequency data. There are also contributions to the total likelihood from the recruitment deviates and priors on the individual model parameters. 
+The total likelihood is composed of a number of components, including the fit to the catch data, indices of abundance (CPUE), and length frequency data. There are also contributions to the total likelihood from the recruitment deviates and priors on the individual model parameters.
 
 ### Catch
 
@@ -194,7 +202,7 @@ The catch data assumed a lognormal error structure. There is no objective estima
 
 ### Indices of abundance
 
-The CPUE indices assumed a lognormal error structure. The 2022 assessment assumed a CV for every *LL* CPUE observation of 0.2. In the current assessment, we followed the same approach. For the *PSLS* index, we used the CV derived from the standardization method.
+The CPUE indices assumed a lognormal error structure. The 2022 assessment assumed a CV for every *LL* CPUE observation of 0.1. In the current assessment, we followed the same approach. For the *PSLS* index, we used the CV derived from the standardization method.
 
 ### Length frequency
 
@@ -204,30 +212,56 @@ The length frequency assumed a multinomial error structure. The current assessme
 
 The parameters of the model were estimated by minimising the sum of the negative log-likelihood components associated with each of the data components plus the negative log of the probability density functions of the priors and recruitment deviates. Models were run with a gradient criterion of $10^{-4}$. The Hessian matrix computed at the mode of the posterior distribution was used to obtain estimates of the covariance matrix, which was used in combination with the Delta method to compute approximate confidence intervals for parameters of interest.
 
-The structural uncertainty grid attempts to describe the main sources of structural and data uncertainty in the assessment. For the current assessment, we have continued with a factorial grid of model runs which incorporates the following sources of uncertainties: 
+The structural uncertainty grid attempts to describe the main sources of structural and data uncertainty in the assessment. For the current assessment, we have continued with a factorial grid of model runs which incorporates the following sources of uncertainties (@tbl-mod-config):
 
-- Selectivity of the *LL* fishery: constant over the years or with two blocks: before and after 2000.
-- Steepness: 0.7, 0.8, and 0.9.
-- Including the *PSLS* CPUE index.
+-   Selectivity of the *LL* fishery: constant over the years or with two blocks: before and after 2002.
+-   Including or excluding the *PSLS* CPUE index.
 
 ### Diagnostics
 
-In order to evaluate model misspecification, we applied a series of diagnostics tools described in @carvalhoCookbookUsingModel2021 to candidate reference models. Regarding convergence, we examined the maximum final gradient, invertible Hessian, and a jittering analysis to evaluate if models converged to a global solution. 
+In order to evaluate model misspecification, we applied a series of diagnostics tools described in @carvalhoCookbookUsingModel2021 to the four model configurations. Regarding convergence, we examined the maximum final gradient, invertible Hessian, and ran a jittering analysis to evaluate if models converged to a global solution.
 
-For highly complex population models fitted to large amounts of often conflicting data, it is common to have difficulties estimating total abundance. Therefore, a likelihood profile analysis was undertaken of the marginal posterior likelihood with respect to natural mortality ($M$). Retrospective analyses were conducted as a general test of the stability of the model, as a robust model should produce similar output when rerun with data for the terminal years sequentially excluded [@cadiganLocalInfluenceDiagnostics2005]. We used the Mohn's $\rho$ [@mohnRetrospectiveProblemSequential1999] as an indicator of retrospective patterns for spawning biomass, recruitment, and $F/F_{MSY}$. Finally, we also evaluated possible misspecification of biological parameters by identifying trends in recruitment deviates [@merinoInvestigatingTrendsProcess2022]. 
+For highly complex population models fitted to large amounts of often conflicting data, it is common to have difficulties estimating total abundance. Therefore, a likelihood profile analysis was undertaken of the marginal posterior likelihood with respect to natural mortality ($M_{ref}$). Retrospective analyses were conducted as a general test of the stability of the model, as a robust model should produce similar output when rerun with data for the terminal years sequentially excluded [@cadiganLocalInfluenceDiagnostics2005]. We used the Mohn's $\rho$ [@mohnRetrospectiveProblemSequential1999] as an indicator of retrospective patterns for spawning biomass, recruitment, fishing mortality, and $SSB/SSB_{MSY}$. 
 
 ## Stock status
 
-Maximum Sustainable Yield (MSY) based estimates of stock status were determined for the final candidate reference models, and those included in the uncertainty grid. MSY based reference points were derived for the model options based on the average F-at-age matrix for every year. 
+Maximum Sustainable Yield (MSY) based estimates of stock status were determined for the model configurations, and those included in the uncertainty grid. MSY based reference points were derived for the model options based on the average F-at-age matrix for every year.
 
 ## Projections
 
-We also ran 5-year short-term projections at $F_{MSY}$.
+We also ran 5-year short-term projections using the fishing mortality levels from the last model year (2024).
 
 # Results
 
+## Fits
+
+All the models configurations fitted relatively well to the catch (@fig-fit-catch-ll) and the CPUE LL index (@fig-fit-index-ll). For models that incorporated the LS index (@fig-fit-index-ls), the fit was relatively poor, probably due to the larger weight (i.e., smaller CV) specified for the LL index. Regarding marginal length compositions, the fits to the PSLS (@fig-fit-len-ls) and FL (@fig-fit-len-fl) length data were quite well, while to the PSFS length data were also relatively well (@fig-fit-len-fs). For the LL length data, we observed that the model predicted larger fish before 2002 when using one selectivity block with a logistic shape (@fig-fit-len-ll-1). However, these fits were improved when modelling two selectivity blocks for the LL fishery (@fig-fit-len-ll-2).
+
+## Estimates
+
+Selectivity estimates can be found in @fig-res-selex-1 when one block was modelled for the LL fleet, while @fig-res-selex-2 shows the selectivity estimates when two blocks were modelled for that fleet. The SRR is shown in @fig-res-ssr for model *1BlockLL_LS_h08*. In general, the four model configurations produced similar results. The annual $F$ estimates shown an increasing trend (@fig-comp-ts). Annual SSB estimates showed a decreasing trend, starting from values around 1.3 million mt in 1979 to values around 400 thousand mt in 2024. Annual recruitment estimates remained roughly stable over the years, showing a slight decreasing trend from 2000 to 2015. Regarding estimates of annual reference points, we observed that $SSB_{MSY}$ remained stable over the years, around 325 thousand mt (@fig-comp-ref-1). Conversely, $F_{MSY}$ increased over time, especially from 2005, while $MSY$ decreased up to a value of around 90 thousand mt in 2024 (@fig-comp-ref-1). Recruitment variability ($\sigma_R$) was estimated between 0.14 and 0.17 (@tbl-par-est).
+
+## Stock status
+
+Regarding estimates of stock status, in 2024, $SSB/SSB_{MSY}$ was estimated around 1.25 for the four model configurations, while $F/F_{MSY}$ was estimated around 1 (@fig-comp-ref-2). When examining these estimates in a Kobe plot with their respective uncertainties, we found that the most likely stock status in 2024 is not overfished and not subject to overfishing (@fig-kobe, green quadrant), although there is a high probably ($\sim$ 0.45) of being not overfished but subject to overfishing.
+
+## Diagnostics
+
+For this section, we focus on the diagnostics for the *2BlockLL_noLS* model configuration, although diagnostics were also produced for the other configurations. We found small retrospective patterns for SSB, $SSB/SSB_{MSY}$, recruitment, and fishing mortality (@fig-retro-ssb, @fig-retro-ssbmsy, @fig-retro-rec, and @fig-retro-f). @tbl-mohn shows the Mohn's $\rho$ values for each model configuration. The jitter analysis suggests that models *1BlockLL_noLS*, *1BlockLL_LS*, and *2BlockLL_noLS* converged to a global solution (@fig-jitter-nll and @fig-jitter-ssb); however, *2BlockLL_LS* produced divergent estimates. Regarding the $M_{ref}$ profile, we found that the value used in our model configurations was close to the $M$ value that produced the minimum marginal negative log likelihood (@fig-prof-M).
+
+## Projections
+
+When making 5-years projections using the F values in 2024, we noticed that the SSB may decrease and be closer to the $SSB_{MSY}$ (@fig-proj-ssb). Also, the annual total catch decreased over the projected years and may be closed to the $MSY$ (@fig-proj-catch).
 
 # Discussion
+
+In this document, we aimed to apply an age-structured SSAMs like WHAM to the IO bigeye tuna. Age-structured SSAMs have been rarely applied to tuna stocks, but their use might become more popular in future years. The implemented model configurations converged and were able to invert the Hessian to calculate standard error of derived quantities. Our models suggest that the SSB has decreased from values around 1.3 million mt in 1979 to values around 400 thousand mt in 2024. Also, the most likely stock status is not overfished and not subject to overfishing in 2024, although there is a high probability ($\sim 0.45$) of being subject to overfishing for most models. Our models used marginal length compositions as a key data input; however, *growth-WHAM* is also able to incorporate conditional age-at-length information, which could be explored in future analyses.
+
+There are some key differences among WHAM and SS3 that are important to interpret our model results. First, the SS3 model configurations are more complex: they are spatially-explicit and model quarters as years. Therefore, SS3 estimates of recruitment deviations are quarterly. Second, SS3 models ages from 0 to a maximum age (plus group). Therefore, the relationship between SSB and recruitment in the SSR has lag 0. Third, SS3 uses the penalized likelihood approach to estimate recruitment deviations by fixing the recruitment variability parameter $\sigma_R$, which may impact the recruitment estimates. Lastly, the meaning of fishing mortality ($F$) in SS3 is different from WHAM. In SS3, we normally report annual F as the average F in a subset of ages. In WHAM, annual F is reported as the maximum F per fleet and age.
+
+Besides the structural differences between SS3 and WHAM, there are also key differences in the biological parameters used in this document and the last IO bigeye assessment conducted in 2022. The new growth curve presented by @evesonUpdatingEstimationAge2025 may suggest that the IO bigeye is more productive than previously thought since the mean length-at-age is larger compared with the curve used in @fuPreliminaryIndianOcean2022. Also, the $M$ at age values in our model are different and slightly larger than the values used in the 2022 IO bigeye assessment, which were fixed at age. In our study, we have not explored the individual impacts of these key updates in the biological parameters for this stock, but we would expect large impacts on model outputs.
+
+The version of WHAM used in this document (*growth-WHAM*) is not consistently maintained. The main version of WHAM has continued its development only considering the inclusion of age-specific data. Recently, the most recent WHAM version (2.0) has been published, allowing to model multiple areas/stocks, seasons, and movement among areas [@millerSpaceWHAMMultiregion2025]. Regarding the development of *growth-WHAM* for stocks like tunas, we recommend expanding its capabilities to model multiple seasons within a year as a first step, which may improve the fitting to length data and realism. Another model configuration that may be useful to explore is to model quarters as years as done in SS3; however, we found issues regarding memory allocation due to the large number of random effects to predict.
 
 
 # References
@@ -239,7 +273,140 @@ We also ran 5-year short-term projections at $F_{MSY}$.
 
 # Tables
 
+| Fishery code | Fishery group                        |
+|--------------|--------------------------------------|
+| LL           | Longline (frozen tuna)               |
+| PSFS         | Purse seine, free school             |
+| PSLS         | Purse seine, log school              |
+| FL           | Longline (fresh tuna)                |
+| LINE         | Combination handline and mixed gears |
+| BB           | Baitboat                             |
+| OTHER        | Other fisheries                      |
 
+: Seven fishery groups and codes used in the current assessment. {#tbl-fishery-codes}
+
+| Model ID | LL selectivity | LS index |
+|----------|----------------|----------|
+| 1        | 1BlockLL       | noLS (excluded)    |
+| 2        | 1BlockLL       | LS (included)      |
+| 3        | 2BlockLL       | noLS (excluded)    |
+| 4        | 2BlockLL       | LS (included)      |
+
+: Model configurations. *LL selectivity* refers to the modelling of one or two selectivity blocks for the LL fleet (before and after 2002). *LS index* refers to the inclusion or exclusion of the PSLS index. {#tbl-mod-config}
+
+```{r}
+#| label: tbl-par-fix
+#| tbl-cap: Values of fixed parameters in the four model configurations.
+tab1 = readRDS(paste0('../figures/fit1/res_tables/parameter_estimates_table.RDS'))
+tab1 = as.data.frame(tab1) %>% filter(rownames(tab1) %in% c('B-H h', 'K', 'Linf', 'L1', 'SD1', 'SDA', 'a (length-weight)', 'b (length-weight)'))
+tab1 = tab1 %>% mutate(Parameter = rownames(tab1), .before='Estimate')
+my_tab = tab1
+rownames(my_tab) = NULL
+my_tab = my_tab %>% select(c(Parameter, Estimate)) %>% rename(Value = Estimate) %>%
+          dplyr::mutate_if(is.numeric, funs(as.character(signif(., 3))))
+kable(my_tab)
+```
+
+
+```{r}
+#| label: tbl-par-est
+#| tbl-cap: Estimates of unfished recruitment ($R_0$) and recruitment variability ($\sigma_R$) by model configuration.
+all_mods = as.character(1:4)
+save_df = list()
+for(i in seq_along(all_mods)) {
+  tab1 = readRDS(paste0('../figures/fit', all_mods[i],'/res_tables/parameter_estimates_table.RDS'))
+  tab1 = as.data.frame(tab1) %>% slice(2:3) 
+  save_df[[i]] = tab1 %>% mutate(Model = model_labels[i],
+                         Parameter = rownames(tab1), .before='Estimate')
+}
+my_tab = bind_rows(save_df)
+rownames(my_tab) = NULL
+my_tab = my_tab %>% select(-`Std. Error`)
+kable(my_tab, digits = 2)
+```
+
+```{r}
+#| label: tbl-mohn
+#| tbl-cap: Mohn's $\rho$ for each model configuration and variable. 
+mytab1 = read.csv('../figures/compare/model_comparison.csv')
+mytab1 = mytab1 %>% select(X, rho_SSB, rho_Fbar, rho_SSB_MSY, rho_R)
+colnames(mytab1) = c('Model', 'SSB', 'Fbar', 'SSB/SSBmsy', 'Recruitment')
+kable(mytab1)
+```
+
+
+{{< pagebreak >}}
 
 # Figures
 
+![Absolute and relative annual catch (mt) per fleet.](../figures/fit2/plots_png/input_data/catch_by_fleet.png){#fig-catch}
+
+![Yearly marginal length compositions for fleet LL. Years with gray bubbles were used in the model, while years with white bubbles were excluded.](../figures/fit2/plots_png/input_data/catch_len_comp_fleet_1.png){#fig-len-1}
+
+![Yearly marginal length compositions for fleet PSFS. Years with gray bubbles were used in the model, while years with white bubbles were excluded.](../figures/fit2/plots_png/input_data/catch_len_comp_fleet_2.png){#fig-len-2}
+
+![Yearly marginal length compositions for fleet PSLS. Years with gray bubbles were used in the model, while years with white bubbles were excluded.](../figures/fit2/plots_png/input_data/catch_len_comp_fleet_3.png){#fig-len-3}
+
+![Yearly marginal length compositions for fleet FL. Years with gray bubbles were used in the model, while years with white bubbles were excluded.](../figures/fit2/plots_png/input_data/catch_len_comp_fleet_4.png){#fig-len-4}
+
+![Yearly marginal length compositions for fleet LINE. Years with gray bubbles were used in the model, while years with white bubbles were excluded.](../figures/fit2/plots_png/input_data/catch_len_comp_fleet_5.png){#fig-len-5}
+
+![Yearly marginal length compositions for fleet BB. Years with gray bubbles were used in the model, while years with white bubbles were excluded.](../figures/fit2/plots_png/input_data/catch_len_comp_fleet_6.png){#fig-len-6}
+
+![Yearly marginal length compositions for fleet OTHER. Years with gray bubbles were used in the model, while years with white bubbles were excluded.](../figures/fit2/plots_png/input_data/catch_len_comp_fleet_7.png){#fig-len-7}
+
+![Absolute and relative annual catch (mt) per fleet.](../figures/fit2/plots_png/input_data/index.png){#fig-index}
+
+![Age-length transition matrix. The color scale indicates the proportion-at-length for each age.](../figures/fit2/plots_png/results/phi_mat_tile.png){#fig-growth}
+
+![Natural mortality at age derived from the Lorenzen curve.](../figures/fit2/plots_png/results/M_at_age.png){#fig-Matage}
+
+![Fit to the LL catch data of the *1BlockLL_LS_h08* model configuration. Residuals are also shown in bottom panels.](../figures/fit2/plots_png/diagnostics/Catch_4panel_fleet_1.png){#fig-fit-catch-ll}
+
+![Fit to the LL index of the *1BlockLL_LS_h08* model configuration. Residuals are also shown in bottom panels.](../figures/fit2/plots_png/diagnostics/Index_4panel_1.png){#fig-fit-index-ll}
+
+![Fit to the PSLS index of the *1BlockLL_LS_h08*. Residuals are also shown in bottom panels.](../figures/fit2/plots_png/diagnostics/Index_4panel_2.png){#fig-fit-index-ls}
+
+![Example of annual fits to PSLS length compositions of the *1BlockLL_LS_h08* model configuration.](../figures/fit2/plots_png/diagnostics/Catch_len_comp_fleet_3_a.png){#fig-fit-len-ls}
+
+![Example of annual fits to FL length compositions of the *1BlockLL_LS_h08* model configuration.](../figures/fit2/plots_png/diagnostics/Catch_len_comp_fleet_4.png){#fig-fit-len-fl}
+
+![Example of annual fits to PSFS length compositions of the *1BlockLL_LS_h08* model configuration.](../figures/fit2/plots_png/diagnostics/Catch_len_comp_fleet_2.png){#fig-fit-len-fs}
+
+![Example of annual fits to LL length compositions of the *1BlockLL_LS_h08* model configuration.](../figures/fit2/plots_png/diagnostics/Catch_len_comp_fleet_1.png){#fig-fit-len-ll-1}
+
+![Example of annual fits to LL length compositions of the *2BlockLL_LS_h08* model configuration.](../figures/fit4/plots_png/diagnostics/Catch_len_comp_fleet_1.png){#fig-fit-len-ll-2}
+
+![Selectivity per fleet estimated by the *1BlockLL_LS_h08* model configuration.](../figures/fit2/plots_png/results/selex_tile.png){#fig-res-selex-1}
+
+![Selectivity for the LL fleet estimated by the *2BlockLL_LS_h08* model configuration.](../figures/fit4/plots_png/results/Selectivity_index1.png){#fig-res-selex-2}
+
+![Relationship between annual estimates of SSB and recruitment by the *1BlockLL_LS_h08* model configuration.](../figures/fit2/plots_png/results/SSB_Rec.png){#fig-res-ssr}
+
+
+![Comparison of annual estimates of SSB, recruitment, and fishing mortality among the model configurations.](../figures/compare/compare_png/compare_SSB_F_R.png){#fig-comp-ts}
+
+![Annual estimates of $SSB_{MSY}$, $MSY$, and $F_{MSY}$ by the model configurations.](../figures/compare/compare_png/compare_ref_pts.png){#fig-comp-ref-1}
+
+![Annual estimates of $SSB/SSB_{MSY}$ and $F/F_{MSY}$ by the model configurations.](../figures/compare/compare_png/compare_rel_status_timeseries.png){#fig-comp-ref-2}
+
+![Stock status (Kobe plot) estimated by the model configurations.](../figures/compare/compare_png/compare_rel_status_kobe.png){#fig-kobe}
+
+![Retrospective patterns in SSB by the *2BlockLL_noLS* model.](../figures/fit3/plots_png/retro/SSB_retro.png){#fig-retro-ssb}
+
+![Retrospective patterns in $SSB/SSB_{msy}$ by the *2BlockLL_noLS* model.](../figures/fit3/plots_png/retro/SSB_MSY_retro.png){#fig-retro-ssbmsy}
+
+![Retrospective patterns in recruitment by the *2BlockLL_noLS* model.](../figures/fit3/plots_png/retro/NAA_age1_retro.png){#fig-retro-rec}
+
+![Retrospective patterns in fishing mortality (averaged for ages 1-5) by the *2BlockLL_noLS* model.](../figures/fit3/plots_png/retro/Fbar_retro.png){#fig-retro-f}
+
+
+![Jitter analysis by model configuration. Change in marginal negative log likelihood by jitter iteration (x-axis). Ten iterations were run.](../figures/jitter/nLL.png){#fig-jitter-nll}
+
+![Jitter analysis by model configuration. Change in estimates of annual SSB. Ten iterations were run.](../figures/jitter/SSB.png){#fig-jitter-ssb}
+
+![Likelihood profile of natural mortality (M) for the *2BlockLL_noLS* model configuration. The dashed vertical line represents the parameter value used in the *2BlockLL_noLS* model.](../figures/profile_M/nLL.png){#fig-prof-M}
+
+![Five-year projection in SSB and $SSB_{MSY}$ by model configuration. The projected F was assumed to be as in 2024. The vertical dashed line indicates the start of the projection.](../figures/proj/SSB.png){#fig-proj-ssb}
+
+![Five-year projection in total catch and $MSY$ by model configuration. The projected F was assumed to be as in 2024. The vertical dashed line indicates the start of the projection.](../figures/proj/catch.png){#fig-proj-catch}

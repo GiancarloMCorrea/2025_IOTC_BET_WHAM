@@ -111,8 +111,8 @@ show_selex <- function(model = c('double-normal', 'logistic', 'len-double-normal
 # Example usage:
 show_selex(model = 'double-normal', initial_pars = c(2.5, -5, 0, 1, -5, -5), 
            ages = 1:40)
-show_selex(model = 'len-double-normal', initial_pars = c(100, 0, 5, 5, -5, -2), 
-           lenbins = input_data$lengths)
+show_selex(model = 'len-double-normal', initial_pars =  c(113, -1.33, 2, 6.55, -5, -1.1), 
+           lenbins = seq(from = 10, to = 198, by = 4))
 
 show_selex(model = 'logistic', initial_pars = c(16, 2), 
            ages = 1:40)

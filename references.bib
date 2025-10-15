@@ -164,14 +164,6 @@
   doi = {10.1016/j.fishres.2022.106477}
 }
 
-@techreport{harleyPreliminaryExaminationSteepness2011,
-  title = {Preliminary Examination of Steepness in Tunas Based on Stock Assessment Results},
-  author = {Harley, Shelton},
-  year = {2011},
-  number = {WCPFC-SC7-2011/IP-08},
-  institution = {{Western and Central Pacific Fisheries Commission}}
-}
-
 @techreport{herreraProposalSystemAssess2010,
   title = {Proposal for a System to Assess the Quality of Fisheries Statistics at the {{IOTC}}},
   author = {Herrera, Miguel},
@@ -287,15 +279,23 @@
   file = {C:\Users\gmoron\Zotero\storage\UGDRDVMD\Lorenzen - 2005 - Population dynamics and potential of fisheries sto.pdf}
 }
 
-@article{merinoInvestigatingTrendsProcess2022,
-  title = {Investigating Trends in Process Error as a Diagnostic for Integrated Fisheries Stock Assessments},
-  author = {Merino, Gorka and Urtizberea, Agurtzane and Fu, Dan and Winker, Henning and Cardinale, Massimiliano and Lauretta, Matthew V and Murua, Hilario and Kitakado, Toshihide and Arrizabalaga, Haritz and Scott, Robert},
-  year = {2022},
-  journal = {Fisheries Research},
-  volume = {256},
-  pages = {106478},
-  publisher = {Elsevier},
-  issn = {0165-7836}
+@article{methotAdjustingBiasDue2011,
+  title = {Adjusting for Bias Due to Variability of Estimated Recruitments in Fishery Assessment Models},
+  author = {Methot, Richard D. and Taylor, Ian G.},
+  editor = {Chen, Yong},
+  year = {2011},
+  month = oct,
+  journal = {Canadian Journal of Fisheries and Aquatic Sciences},
+  volume = {68},
+  number = {10},
+  pages = {1744--1760},
+  issn = {0706-652X, 1205-7533},
+  doi = {10.1139/f2011-092},
+  url = {http://www.nrcresearchpress.com/doi/10.1139/f2011-092},
+  urldate = {2020-03-26},
+  abstract = {Integrated analysis models provide a tool to estimate fish abundance, recruitment, and fishing mortality from a wide variety of data. The flexibility of integrated analysis models allows them to be applied over extended time periods spanning historical decades with little information from which to estimate the annual signal of recruitment variability to modern periods in which more information about recruitment variability exists. Across this range of data availability, the estimation process must assure that the estimated log-normally distributed recruitments are mean unbiased to assure mean unbiased biomass estimates. Here we show how the estimation method implemented in the integrated analysis model, Stock Synthesis, achieves this unbiased characteristic in a penalized likelihood approach that is comparable to the results from Markov chain Monte Carlo. The total variability in recruitment is decomposed into variability among annual recruitment estimates based on information in the data and a residual variability. Because data are never perfectly informative, we show that estimated recruitment variability will always be less than the true variability among recruitments and that the method implemented here can be used to iteratively estimate the true variability among recruitments.},
+  langid = {english},
+  file = {C:\Users\moroncog\Documents\Year2_OSUPhD\Methot_Taylor_2011.pdf}
 }
 
 @article{methotStockSynthesisBiological2013,
@@ -340,6 +340,23 @@
   abstract = {State-space models explicitly separate uncertainty associated with unobserved, time-varying parameters from that which arises from sampling the population. The statistical aspects of formal state-space models are appealing and these models are becoming more widely used for assessments. However, treating natural mortality as known and constant across ages continues to be common practice. We developed a state-space, age-structured assessment model that allowed different assumptions for natural mortality and the degree of temporal stochasticity in abundance. We fit a suite of models where natural mortality was either age-invariant or an allometric function of mass and interannual transitions of abundance were deterministic or stochastic to observations on Gulf of Maine -- Georges Bank Acadian redfish (Sebastes fasciatus). We found that allowing stochasticity in the interannual transition in abundance was important and estimating age-invariant natural mortality was sufficient. A simulation study showed low bias in annual biomass estimation when the estimation and simulation model matched and the Akaike imformation criterion accurately measured relative model performance, but it was important to allow simulated data sets to include the stochasticity in interannual transitions of abundance-at-age.},
   langid = {english},
   file = {C:\Users\moroncog\Documents\Postdoc_UW\references\Miller_Hyun_2018.pdf}
+}
+
+@article{millerSpaceWHAMMultiregion2025,
+  title = {Space for {{WHAM}}: A Multi-Region, Multi-Stock Generalization of the {{Woods Hole Assessment Model}} with an Application to Black Sea Bass},
+  shorttitle = {Space for {{WHAM}}},
+  author = {Miller, Timothy J. and Curti, Kiersten L. and Hansell, Alexander C.},
+  year = {2025},
+  month = jan,
+  journal = {Canadian Journal of Fisheries and Aquatic Sciences},
+  volume = {82},
+  pages = {1--26},
+  issn = {0706-652X, 1205-7533},
+  doi = {10.1139/cjfas-2025-0097},
+  url = {https://cdnsciencepub.com/doi/10.1139/cjfas-2025-0097},
+  urldate = {2025-10-03},
+  abstract = {The Woods Hole Assessment Model is a general state-space age-structured assessment model that is used to assess and manage many stocks in the Northeast US. We first describe an extension of the model allowing any number of stocks (or stock components) and regions with movement among regions as well as seasonal variation in stock and fleet dynamics. Movement rates can be functions of time- and age-varying random effects and environmental covariates. We then illustrate the model by applying it to data for the northern and southern components of the Northeast United States black sea bass stock and evaluate alternative hypotheses of bottom temperature and time-varying random effects on recruitment and natural mortality. We show strong evidence for temperature effects on recruitment, primarily for the northern stock component, and no evidence for including random effects or temperature effects on age 1 natural mortality.},
+  langid = {english}
 }
 
 @article{millerTemporalEnvironmentalVariation2018,
@@ -438,6 +455,24 @@
   abstract = {The rapid changes observed in many marine ecosystems that support fisheries pose a challenge to stock assessment and management predicated on time-invariant productivity and considering species in isolation. In single-species assessments, two main approaches have been used to account for productivity changes: allowing biological parameters to vary stochastically over time (empirical), or explicitly linking population processes such as recruitment (R) or natural mortality (M) to environmental covariates (mechanistic). Here, we describe the Woods Hole Assessment Model (WHAM) framework and software package, which combines these two ap\- proaches. WHAM can estimate time- and age-varying random effects on annual transitions in numbers at age (NAA), M, and selectivity, as well as fit environmental time-series with process and observation errors, missing data, and nonlinear links to R and M. WHAM can also be configured as a traditional statistical catch-at-age (SCAA) model in order to easily bridge from status quo models and test them against models with state-space and environmental effects, all within a single framework.},
   langid = {english},
   file = {C:\Users\moroncog\Documents\Postdoc_UW\references\Stock_Miller_2021.pdf}
+}
+
+@article{thorsonRandomEffectEstimation2015,
+  title = {Random Effect Estimation of Time-Varying Factors in {{Stock Synthesis}}},
+  author = {Thorson, James T. and Hicks, Allan C. and Methot, Richard D.},
+  year = {2015},
+  month = jan,
+  journal = {ICES Journal of Marine Science},
+  volume = {72},
+  number = {1},
+  pages = {178--185},
+  issn = {1095-9289, 1054-3139},
+  doi = {10.1093/icesjms/fst211},
+  url = {https://academic.oup.com/icesjms/article/72/1/178/814992},
+  urldate = {2023-02-09},
+  abstract = {Biological processes such as fishery selectivity, natural mortality, and somatic growth can vary over time, but it is challenging to estimate the magnitude of time-variation of demographic parameters in population dynamics models, particularly when using penalizedlikelihood estimation approaches. Random-effect approaches can estimate the variance, but are computationally infeasible or not implemented for many models and software packages. We show that existing models and software based on penalized-likelihood can be used to calculate the Laplace approximation to the marginal likelihood of parameters representing variability over time, and specifically demonstrate this approach via application to Stock Synthesis. Using North Sea cod and Pacific hake models as case studies, we show that this method has little bias in estimating variances for simulated data. It also provides a similar estimate of variability in hake recruitment (log-SD {$\frac{1}{4}$} 1.43) to that obtained from Markov chain Monte Carlo (MCMC) methods (log-SD {$\frac{1}{4}$} 1.68), and the method estimates a non-trivial magnitude (log-SD {$\frac{1}{4}$} 0.07) of variation in growth for North Sea cod. We conclude by discussing the generality of the proposed method and by recommending future research regarding its performance relative to MCMC, particularly when estimating multiple variances simultaneously.},
+  langid = {english},
+  file = {C:\Users\moroncog\OneDrive - Oregon State University\Biblio_Tesis\Thorson_etal_2015_3.pdf}
 }
 
 @article{zhangAgeLengthStructured2022,

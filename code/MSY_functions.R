@@ -2,7 +2,7 @@
 Do_Equil_Calc = function(Hrate, n_ages, Nfleet, selmat, M_par, waassb, waafish,
                          fracyearSSB, F_rep, F_ages) {
   
-  Nareas = 1
+  # ONLY WORKS FOR ONE AREA MODEL!
   recdist = 1
   seasdur = 1
   fleet_area_def = matrix(c(1:Nfleet, rep(1, times = Nfleet)), ncol = 2, nrow = Nfleet)
@@ -11,57 +11,53 @@ Do_Equil_Calc = function(Hrate, n_ages, Nfleet, selmat, M_par, waassb, waafish,
   SPR = 0
   ntemp = 1 # rec equilibrium
   # Initialize numbers matrix:
-  equ_numbers = matrix(0, ncol = (3*n_ages), nrow = Nareas)
-  equ_numbers[,1] = ntemp*recdist
+  equ_numbers = vector(length = (3*n_ages), mode = "numeric")
+  equ_numbers[1] = ntemp*recdist
   # Set F-at-age matrix:
   Fmat = matrix(0, ncol = n_ages, nrow = Nfleet)
   for(f in 1:Nfleet) Fmat[f,] = Hrate[f] * selmat[f,]
-  equ_Z = matrix(0, ncol = n_ages, nrow = Nareas)
-  Survivors = numeric(Nareas)
+  equ_Z = vector(length = n_ages, mode = "numeric")
+  Survivors = numeric(1)
   equ_catch_fleet = numeric(Nfleet)
-  SSB_equil_pop = matrix(0, ncol = n_ages, nrow = Nareas)
+  SSB_equil_pop = vector(length = n_ages, mode = "numeric")
   for(a in 1:(3*n_ages)) {
     
     if(a > n_ages) {
       a1 = n_ages
     } else { a1 = a }
     
-    for(p in 1:Nareas) {
-      if (equ_numbers[p,a] > 0.0) {
-        N_beg = equ_numbers[p,a]
+      if (equ_numbers[a] > 0.0) {
+        N_beg = equ_numbers[a]
         if(a1 <= n_ages) {
-          these_fleets = fleet_area_def[,1][fleet_area_def[,2] == p]
-          if(length(these_fleets) > 1) equ_Z[p,a1] = M_par[a1] + colSums(Fmat[these_fleets, ])[a1]
-          else equ_Z[p,a1] = M_par[a1] + Fmat[these_fleets, a1]
+          these_fleets = fleet_area_def[,1][fleet_area_def[,2] == 1]
+          if(length(these_fleets) > 1) equ_Z[a1] = M_par[a1] + colSums(Fmat[these_fleets, ])[a1]
+          else equ_Z[a1] = M_par[a1] + Fmat[these_fleets, a1]
         }
-        Nsurvive = N_beg * exp(-seasdur * equ_Z[p,a1])
-        Survivors[p] = Nsurvive
+        Nsurvive = N_beg * exp(-seasdur * equ_Z[a1])
+        Survivors = Nsurvive
       } else {
-        equ_Z[p,a1] = M_par[a1]
+        equ_Z[a1] = M_par[a1]
       }
-    } # areas loop
-    
-    for(p in 1:Nareas) {
+
       if (a == (3 * n_ages - 1)) {
-        equ_numbers[p,a+1] = Survivors[p] / (1. - exp(-equ_Z[p,n_ages]))
+        equ_numbers[a+1] = Survivors / (1. - exp(-equ_Z[n_ages]))
       } 
       if (a < (3 * n_ages - 1)) {
-        equ_numbers[p,a+1] = Survivors[p]
+        equ_numbers[a+1] = Survivors
       }
-    }
+    
   } # age loop
   
-  for(p in 1:Nareas) {
-    Zrate2 = (1. - exp(-seasdur * equ_Z[p,]))/equ_Z[p,]
-    equ_numbers[p, n_ages] = equ_numbers[p, n_ages] + sum(equ_numbers[p, (n_ages+1):(3*n_ages)])
-    these_fleets = fleet_area_def[,1][fleet_area_def[,2] == p]
+    Zrate2 = (1. - exp(-seasdur * equ_Z))/equ_Z
+    equ_numbers[n_ages] = equ_numbers[n_ages] + sum(equ_numbers[(n_ages+1):(3*n_ages)])
+    these_fleets = fleet_area_def[,1][fleet_area_def[,2] == 1]
     for(f in seq_along(these_fleets)) {
-      equ_catch_fleet[these_fleets[f]] = equ_catch_fleet[these_fleets[f]] + sum((equ_numbers[p,1:n_ages]*Fmat[these_fleets[f],]*waafish[these_fleets[f],])*Zrate2)
+      equ_catch_fleet[these_fleets[f]] = equ_catch_fleet[these_fleets[f]] + sum((equ_numbers[1:n_ages]*Fmat[these_fleets[f],]*waafish[these_fleets[f],])*Zrate2)
     }
     # SSB equil:
-    tempvec_a = equ_numbers[p, 1:n_ages]*exp(-fracyearSSB*equ_Z[p, 1:n_ages])
-    SSB_equil_pop[p,] = waassb * tempvec_a
-  }
+    tempvec_a = equ_numbers[1:n_ages]*exp(-fracyearSSB*equ_Z[ 1:n_ages])
+    SSB_equil_pop = waassb * tempvec_a
+  
   
   YPR_dead = sum(equ_catch_fleet)
   
@@ -77,13 +73,12 @@ Do_Equil_Calc = function(Hrate, n_ages, Nfleet, selmat, M_par, waassb, waafish,
     tempM = 0.0
     tempZ = 0.0
     for (a in F_ages[1]:F_ages[2]) {
-      for(p in 1:Nareas) {
-        tempbase = tempbase + equ_numbers[p,a]
-        tempZ = tempZ + equ_numbers[p,a+1] 
-        temp3 = equ_numbers[p,a]
+        tempbase = tempbase + equ_numbers[a]
+        tempZ = tempZ + equ_numbers[a+1] 
+        temp3 = equ_numbers[a]
         temp3 = temp3*exp(-seasdur * M_par[a])
         tempM = tempM + temp3
-      }
+      
     }
     equ_F_std = log(tempM) - log(tempZ)
   }
@@ -93,13 +88,12 @@ Do_Equil_Calc = function(Hrate, n_ages, Nfleet, selmat, M_par, waassb, waafish,
       tempbase = 0.0
       tempM = 0.0
       tempZ = 0.0
-      for(p in 1:Nareas) {
-        tempbase = tempbase + equ_numbers[p,a] 
-        tempZ = tempZ + equ_numbers[p,a+1] 
-        temp3 = equ_numbers[p,a]
+        tempbase = tempbase + equ_numbers[a] 
+        tempZ = tempZ + equ_numbers[a+1] 
+        temp3 = equ_numbers[a]
         temp3 = temp3*exp(-seasdur * M_par[a])
         tempM = tempM + temp3
-      }
+      
       countN = countN + 1.
       equ_F_std = equ_F_std + log(tempM) - log(tempZ)
     }
@@ -246,24 +240,19 @@ y_i = this_model$env$data$n_years_model
 sel_at_age = matrix(0, ncol = this_model$env$data$n_ages, nrow = this_model$env$data$n_fleets)
 waa_fish = matrix(0, ncol = this_model$env$data$n_ages, nrow = this_model$env$data$n_fleets)
 for(f in 1:this_model$env$data$n_fleets) {
-  # Choose here what fleet has selex length based
-  # if(this_model$env$data$selblock_pointer_fleets[y_i,f] == 2) {
-    sel_at_age[f,] = t(this_model$rep$selAL[[this_model$env$data$selblock_pointer_fleets[y_i,f]]][y_i,]) %*%  this_model$rep$catch_phi_mat[,,y_i]
-  # } else {
-    # sel_at_age[f,] = this_model$rep$selAL[[this_model$env$data$selblock_pointer_fleets[y_i,f]]][y_i,]
-  # }
-  waa_fish[f,] = this_model$rep$pred_waa[1,y_i,]
+  sel_at_age[f,] = t(this_model$rep$selAL[[this_model$env$data$selblock_pointer_fleets[y_i,f]]][y_i,]) %*%  this_model$rep$catch_phi_mat[,,y_i]
+  waa_fish[f,] = this_model$rep$pred_waa[2,y_i,]
 }
 
 calc_ref_msy(Frel = this_model$rep$F[y_i, ]/sum(this_model$rep$F[y_i, ]),
              selmat = sel_at_age,
              M_par = this_model$rep$MAA[y_i, ],
-             waassb = this_model$rep$pred_waa[2,y_i,],
+             waassb = this_model$rep$pred_waa[1,y_i,]*this_model$rep$mat_at_age[y_i,],
              waafish = waa_fish,
-             SR_R0 = this_model$rep$NAA[1,1],
-             SR_h = 0.8,
-             F_rep = 4,
-             F_ages = c(1, this_model$env$data$n_ages-1),
+             SR_R0 = exp(this_model$parList$mean_rec_pars[2]),
+             SR_h = h_init,
+             F_rep = 3,
+             F_ages = c(1, 9),
              fracyearSSB = 0
              )
 

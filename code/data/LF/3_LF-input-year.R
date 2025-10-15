@@ -1,4 +1,5 @@
 rm(list = ls())
+require(dplyr)
 
 # Read auxiliary functions:
 source('code/auxiliary_functions.R')
@@ -21,11 +22,44 @@ table(data$Area)
 # Filter by year:
 data = data %>% filter(Year >= mod_str_yr, Year <= mod_end_yr)
 
+# Filter out messy data:
+data_filt = data %>%  ## additional filtering of spurious length data for the assessment - this should be included in the final LF dataset for the assessment. I have not completely reviewed all of these - this is something that should be investigated in the future.
+  filter(!(Fleet %in% c('COM') & Gear == 'TROL' & Year > 2021))  %>%
+  filter(!(Fleet %in% c('TWN','SYC') & Gear == 'LL')) %>%
+  filter(!(Fleet == "IDN" & Gear == "GILL" & Year > 2018)) %>%  # "SF strata to delete" from IOTC-2022-WPTT24(DP)-DATA14-SA_BET-01-summary.xlsx
+  filter(!(Fleet == "IDN" & Gear == "TROL" & Year > 2019)) %>%
+  filter(!(Fleet == "IDN" & Gear == "HAND" & Year > 2020))  %>%
+  filter(!(Fleet == "IDN" & Gear == "LLCO" & Year > 2020))  %>%
+  filter(!(Fleet == "COM" & Gear == "HAND" & Year > 2021)) %>%
+  filter(!(Fleet == "COM" & Gear == "LLCO" & Year > 2021)) %>%
+  filter(!(Fleet == "IRN" & Gear == "GILL" & Year > 2013)) %>%
+  filter(!(Fleet == "IRN" & Gear == "PS" & Year > 2017)) %>%
+  filter(!(Fleet == "KOR" & Gear == "LL" & Year %in% c(1991:2005))) %>%
+  filter(!(Fleet == "LKA" & Gear == "G/L" & Year %in% c(2005:2007))) %>%
+  filter(!(Fleet == "LKA" & Gear == "GILL" & Year %in% c(1988:2024))) %>%
+  filter(!(Fleet == "LKA" & Gear == "HAND" & Year %in% 2004)) %>%
+  filter(!(Fleet == "LKA" & Gear == "HATR" & Year %in% 1999)) %>%
+  filter(!(Fleet == "LKA" & Gear == "TROL" & Year %in% c(1997:2003))) %>%
+  filter(!(Fleet == "MDV" & Gear == "BB" & Year %in% c(2012:2024))) %>%
+  filter(!(Fleet == "MDV" & Gear == "BBOF" & Year %in% c(2021:2024))) %>%
+  filter(!(Fleet == "MDV" & Gear == "HAND" & Year %in% 2015)) %>%
+  filter(!(Fleet == "MDV" & Gear == "LL" & Year %in% c(2014:2016))) %>%
+  filter(!(Fleet == "MDV" & Gear == "TROL" & Year %in% 2015)) %>%
+  filter(!(Fleet == "MOZ" & Gear == "HAND" & Year %in% 2015)) %>%
+  filter(!(Fleet == "MUS" & Gear == "HATR" & Year %in% 2017)) %>%
+  filter(!(Fleet == "MUS" & Gear == "PS" & Year %in% c(1988:2000,2014,2020:2024))) %>%
+  filter(!(Fleet == "MUS" & Gear == "PSOB" & Year %in% c(2018:2024))) %>%
+  filter(!(Fleet == "SYC" & Year %in% 2024))
+  # filter(!(ModelFishery %in% c("FL2") & Year < 2012)) %>%
+  # filter(!(ModelFishery %in% c("OT1N","OT2","BB1N"))) %>%
+  # dplyr::filter(!(ModelFishery %in% c("LINE2") & Year > 2018)) %>%
+  
+
 # Aggregate data:
 # Remove Month, SchoolType, Grid:
-agg_data = data %>% group_by(Year, Quarter, FisheryCode) %>%
+agg_data = data_filt %>% group_by(Year, Quarter, FisheryCode) %>%
   summarise_at('Quality', list(mean)) %>%
-  inner_join(data %>% group_by(Year, Quarter, FisheryCode) %>%
+  inner_join(data_filt %>% group_by(Year, Quarter, FisheryCode) %>%
                summarise_at(c('Nfish_samp', L_labels), list(sum)))
 
 # Filter data based on some criteria (original dataset):
@@ -83,8 +117,6 @@ for(k in seq_along(fleet_order)) {
 # Remove LF data before yr 250 (too sparse!) for fleets 5, 6 and 7 
 pos_rem = mod_str_yr:mod_end_yr < 2008
 lf_use[pos_rem, c(5, 6, 7)] = 0
-# Put 0 for LL len comps for 2024 (fish too large!)
-lf_input[1,46,dim(lf_input)[3]] = lf_input[1,46,(dim(lf_input)[3] - 1)]
 # Do not use year 2020 for PSFS, too weird:
 pos_rem = mod_str_yr:mod_end_yr == 2020
 lf_use[pos_rem, 2] = 0
