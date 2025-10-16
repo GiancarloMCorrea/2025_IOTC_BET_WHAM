@@ -1,5 +1,4 @@
-# 2025_IOTC_BET_WHAM
-Indian Ocean bigeye stock assessment model in WHAM
+# Application of the Woods Hole Assessment Model (WHAM) to the Indian Ocean bigeye tuna
 
 Please install the following version of WHAM:
 
