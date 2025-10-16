@@ -2,41 +2,100 @@
 title: "Advances in the use of state-space assessment models for tuna stocks: application to the Indian Ocean bigeye tuna"
 authors: 
   - name: Giancarlo M. Correa
-    affiliations:
-      - ref: azti
+    affil-id: 1
     email: gmoron@azti.es
     corresponding: true
-  - name: Gorka Merino
-    affiliations:
-      - ref: azti
-  - name: Agurtzane Urtizberea
-    affiliations:
-      - ref: azti
-  - name: Yang Wang
-    affiliations:
-      - ref: ush
   - name: Genevieve Phillips
-    affiliations:
-      - ref: iotc
+    affil-id: 2
+  - name: Gorka Merino
+    affil-id: 1
+  - name: Agurtzane Urtizberea
+    affil-id: 1
+  - name: Yang Wang
+    affil-id: 3
 affiliations:
-  - id: azti
+  - id: 1
     name: AZTI, Marine Research, Basque Research and Technology Alliance (BRTA), Txatxarramendi ugartea z/g, 48395 Sukarrieta (Bizkaia), Spain
-  - id: ush
-    name: College of Marine Living Resource Sciences and Management, Shanghai Ocean University, Shanghai, China
-  - id: iotc
+  - id: 2
     name: Indian Ocean Tuna Commission, Mahe, Seychelles
-filters:
-  - authors-block
+  - id: 3
+    name: College of Marine Living Resource Sciences and Management, Shanghai Ocean University, Shanghai, China
 link-citations: true
 csl: ../elsevier-harvard.csl
 format:
-  docx:
-    toc: false
-    number-sections: false
-    reference-doc: custom-reference-doc.docx
+  pdf:
+    documentclass: scrartcl
+    toc-title: 'Contents'
+    keep-tex: true
+    fig-pos: H
+    template-partials: 
+      - title.tex
+    include-in-header:
+      text: |
+        \usepackage[noblocks]{authblk}
+        \renewcommand*{\Authsep}{, }
+        \renewcommand*{\Authand}{, }
+        \renewcommand*{\Authands}{, }
+        \renewcommand\Affilfont{\small}
+        \usepackage{lineno}
+        \usepackage{scrlayer-scrpage}
+        \rohead{IOTC-2025-WPTT27-23}
+        \usepackage{lscape}
+        \newcommand{\blandscape}{\begin{landscape}}
+        \newcommand{\elandscape}{\end{landscape}}
+geometry: "left=2.5cm,right=2.5cm,top=3cm,bottom=3cm"
 editor: source
+number-sections: true
 bibliography: ../references.bib
 ---
+
+<!-- authors:  -->
+
+<!--   - name: Giancarlo M. Correa -->
+
+<!--     affiliations: -->
+
+<!--       - ref: azti -->
+
+<!--     email: gmoron@azti.es -->
+
+<!--     corresponding: true -->
+
+<!--   - name: Genevieve Phillips -->
+
+<!--     affiliations: -->
+
+<!--       - ref: iotc -->
+
+<!--   - name: Gorka Merino -->
+
+<!--     affiliations: -->
+
+<!--       - ref: azti -->
+
+<!--   - name: Agurtzane Urtizberea -->
+
+<!--     affiliations: -->
+
+<!--       - ref: azti -->
+
+<!--   - name: Yang Wang -->
+
+<!--     affiliations: -->
+
+<!--       - ref: ush -->
+
+<!--     filters: -->
+
+<!-- - authors-block -->
+
+<!-- docx: -->
+
+<!--   toc: false -->
+
+<!--   number-sections: false -->
+
+<!--   reference-doc: custom-reference-doc.docx -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, 
@@ -62,19 +121,18 @@ rbbt::bbt_update_bib(path_rmd = qmd_file,
                      ignore = bbt_ignore, overwrite = T, translator = "bibtex")
 ```
 
-::: {custom-style="Abstract title"}
-Summary
-:::
+**Abstract**
 
-::: {custom-style="Abstract"}
-Add abstract
-:::
+<br>
 
-::: {custom-style="Keywords"}
-KEYWORDS
+The use of the state-space approach in fish stock assessments has received more attention in recent years and is considered as an essential feature for the next-generation stock assessment platforms. However, age-structure state-space asssessment models (SSAMs) are still uncommon for stocks with scarce age information, like tunas. In this study, we aimed to apply an age-structured SSAMs (the Woods Hole Assessment Model - WHAM) to the Indian Ocean bigeye tuna using data inputs that are common for tuna stocks: aggregated catch, indices of abundance, and marginal length compositions. Our models suggest that the SSB has decreased from values around 1.3 million mt in 1979 to values around 400 thousand mt in 2024. Also, the most likely stock status is not overfished and not subject to overfishing in 2024, although there is a high probability ($\sim 0.45$) of being subject to overfishing for most models. We also provided some diagnostics (e.g., retrospective analysis, likelihood profile, jitter analysis) for the implemented models, and ran some model projections to show the capabilities of WHAM. We hope that this study may increase the visibility of age-structured SSAMs and their application to other tuna stocks as an alternative platform.
+
+<br>
+
+*Keywords*
 
 bigeye tuna, state-space models, stock assessment models, Indian Ocean, Woods Hole Assessment Model
-:::
+
 
 \newpage
 
@@ -88,7 +146,7 @@ The State-space Assessment Model -SAM- [@bergAccountingCorrelatedObservations201
 
 The use of age-structured SSAM for tuna stocks has been limited, probably due to the scarce age information for these stocks and the absence of state-space assessment platforms able to include size-specific data or model size-based processes. @mhamedEasternBluefinTuna2017 applied SAM to implement a stock assessment model for eastern Atlantic bluefin tuna (*Thunnus thynnus*), converting marginal size compositions and aggregated catch and indices of abundance to catch-at-age and index-at-age data. @correaModellingTimevaryingGrowth2023 extended WHAM (*growth-WHAM* hereafter) to model length-based processes such as selectivity and growth and to allow the use of length compositions or conditional age-at-length (CAAL) as data inputs. Likewise, other size- or age-structured SSAMs have been developed to model these processes as length-based rather than age-based [@zhangAgeLengthStructured2022; @hillaryIntegratedStockAssessment2021]. These developments could expand the use of age-structured SSAMs to fish stocks with scarce age information like tunas.
 
-In this study, we implemented a stock assessment model for Indian Ocean (IO) bigeye tuna in WHAM. The source of data to derive the model data inputs (catch, indices of abundance, marginal size compositions) was the same as that used in the SS3 IO bigeye assessment model presented in the Working Party of Tropical Tunas 27th (WPTT27). The model configurations considered uncertainty in key fishery processes (e.g., selectivity) and data inputs. We also show examples of WHAM capabilities to estimate stock status and conduct model diagnostics and projections. The main goal of this study is to present WHAM, and age-structured SSAM, and increase the use of age-structure SSAMs for tuna stocks since they may become more popular in future years.
+In this study, we implemented a stock assessment model for Indian Ocean (IO) bigeye tuna in WHAM. The source of data to derive the model data inputs (catch, indices of abundance, marginal size compositions) was the same as that used in the SS3 IO bigeye assessment model presented in the Working Party of Tropical Tunas 27th (WPTT27). The model configurations considered uncertainty in key fishery processes (e.g., selectivity) and data inputs. We also show examples of WHAM capabilities to estimate stock status and conduct model diagnostics and projections. The main goal of this study is to introduce WHAM to the tuna RFMOs, and increase the use of age-structure SSAMs for tuna stocks since they may become more popular in future years.
 
 # Methods
 
@@ -140,7 +198,7 @@ We determined regional scaling factors that incorporated both the size of the re
 
 ### Purse seine (PSLS) CPUE
 
-A standardised index of the biomass of bigeye caught by European purse seiners (Spain and France) from sets on associated tuna schools (1991 – 2023) was developed (@correaStandardizedCatchUnit2025) and provided in a quarterly temporal resolution. Data used to develop this index mainly come from the western IO and mainly informs on the biomass of juvenile bigeye. We averaged the quarterly CPUE values by year to be included in WHAM (@fig-index). The CV associated with each quarterly value was also averaged and then rescaled to a mean of 0.2 to be used as observation error.
+A standardised index of the biomass of bigeye caught by European purse seiners (Spain and France) from sets on associated tuna schools (1991 – 2023) was developed [@correaStandardizedCatchUnit2025] and provided in a quarterly temporal resolution. Data used to develop this index mainly come from the western IO and mainly informs on the biomass of juvenile bigeye. We averaged the quarterly CPUE values by year to be included in WHAM (@fig-index). The CV associated with each quarterly value was also averaged and then rescaled to a mean of 0.2 to be used as observation error.
 
 # Model parameters
 
@@ -154,7 +212,7 @@ Recruitment in WHAM is defined as the appearance of age-1 fish in the population
 
 ### Initial population
 
-The population age structure at the start of the first year (i.e., 1979) was assumed to be in equilibrium state, estimating the number of fish at age 1 and an initial fishing mortality to derive the abundance of other age classes.
+The population age structure at the start of the first year (i.e., 1979) was assumed to be in equilibrium state, estimating the number of fish at age 1 ($N1$) and an initial fishing mortality to derive the abundance of other age classes.
 
 ### Somatic growth and sexual maturity {#sec-growth}
 
@@ -208,9 +266,13 @@ The CPUE indices assumed a lognormal error structure. The 2022 assessment assume
 
 The length frequency assumed a multinomial error structure. The current assessment treated the RQ values (see @sec-size) as the input sample size.
 
+### Recruitment
+
+Derived from the estimation of annual recruitment as random effects.
+
 ## Parameter estimation and uncertainty
 
-The parameters of the model were estimated by minimising the sum of the negative log-likelihood components associated with each of the data components plus the negative log of the probability density functions of the priors and recruitment deviates. Models were run with a gradient criterion of $10^{-4}$. The Hessian matrix computed at the mode of the posterior distribution was used to obtain estimates of the covariance matrix, which was used in combination with the Delta method to compute approximate confidence intervals for parameters of interest.
+The parameters of the model were estimated by minimising the sum of the negative log-likelihood components associated with each of the data components plus the negative log of the probability density functions of recruitment deviates. Models were run with a gradient criterion of $10^{-4}$. The Hessian matrix computed at the mode of the posterior distribution was used to obtain estimates of the covariance matrix, which was used in combination with the Delta method to compute approximate confidence intervals for parameters of interest.
 
 The structural uncertainty grid attempts to describe the main sources of structural and data uncertainty in the assessment. For the current assessment, we have continued with a factorial grid of model runs which incorporates the following sources of uncertainties (@tbl-mod-config):
 
@@ -221,7 +283,7 @@ The structural uncertainty grid attempts to describe the main sources of structu
 
 In order to evaluate model misspecification, we applied a series of diagnostics tools described in @carvalhoCookbookUsingModel2021 to the four model configurations. Regarding convergence, we examined the maximum final gradient, invertible Hessian, and ran a jittering analysis to evaluate if models converged to a global solution.
 
-For highly complex population models fitted to large amounts of often conflicting data, it is common to have difficulties estimating total abundance. Therefore, a likelihood profile analysis was undertaken of the marginal posterior likelihood with respect to natural mortality ($M_{ref}$). Retrospective analyses were conducted as a general test of the stability of the model, as a robust model should produce similar output when rerun with data for the terminal years sequentially excluded [@cadiganLocalInfluenceDiagnostics2005]. We used the Mohn's $\rho$ [@mohnRetrospectiveProblemSequential1999] as an indicator of retrospective patterns for spawning biomass, recruitment, fishing mortality, and $SSB/SSB_{MSY}$. 
+For highly complex population models fitted to large amounts of often conflicting data, it is common to have difficulties estimating total abundance. Therefore, a likelihood profile analysis was undertaken of the marginal posterior likelihood with respect to the initial abundance at age 1 ($N1$). Retrospective analyses were conducted as a general test of the stability of the model, as a robust model should produce similar output when rerun with data for the terminal years sequentially excluded [@cadiganLocalInfluenceDiagnostics2005]. We used the Mohn's $\rho$ [@mohnRetrospectiveProblemSequential1999] as an indicator of retrospective patterns for spawning biomass, recruitment, fishing mortality, and $SSB/SSB_{MSY}$.
 
 ## Stock status
 
@@ -230,6 +292,8 @@ Maximum Sustainable Yield (MSY) based estimates of stock status were determined 
 ## Projections
 
 We also ran 5-year short-term projections using the fishing mortality levels from the last model year (2024).
+
+The code to replicate the analyses presented in this document can be found here: <https://github.com/GiancarloMCorrea/2025_IOTC_BET_WHAM>.
 
 # Results
 
@@ -247,7 +311,7 @@ Regarding estimates of stock status, in 2024, $SSB/SSB_{MSY}$ was estimated arou
 
 ## Diagnostics
 
-For this section, we focus on the diagnostics for the *2BlockLL_noLS* model configuration, although diagnostics were also produced for the other configurations. We found small retrospective patterns for SSB, $SSB/SSB_{MSY}$, recruitment, and fishing mortality (@fig-retro-ssb, @fig-retro-ssbmsy, @fig-retro-rec, and @fig-retro-f). @tbl-mohn shows the Mohn's $\rho$ values for each model configuration. The jitter analysis suggests that models *1BlockLL_noLS*, *1BlockLL_LS*, and *2BlockLL_noLS* converged to a global solution (@fig-jitter-nll and @fig-jitter-ssb); however, *2BlockLL_LS* produced divergent estimates. Regarding the $M_{ref}$ profile, we found that the value used in our model configurations was close to the $M$ value that produced the minimum marginal negative log likelihood (@fig-prof-M).
+For this section, we focus on the diagnostics for the *2BlockLL_noLS* model configuration, although diagnostics were also produced for the other configurations. We found small retrospective patterns for SSB, $SSB/SSB_{MSY}$, recruitment, and fishing mortality (@fig-retro-ssb, @fig-retro-ssbmsy, @fig-retro-rec, and @fig-retro-f). @tbl-mohn shows the Mohn's $\rho$ values for each model configuration. The jitter analysis suggests that models *1BlockLL_noLS*, *1BlockLL_LS*, and *2BlockLL_noLS* converged to a global solution (@fig-jitter-nll and @fig-jitter-ssb); however, *2BlockLL_LS* produced divergent estimates. Regarding the $N1$ profile, we found that the value used in our model configurations was close to the $N1$ value that produced the minimum marginal negative log likelihood (@fig-prof-N1).
 
 ## Projections
 
@@ -257,12 +321,11 @@ When making 5-years projections using the F values in 2024, we noticed that the 
 
 In this document, we aimed to apply an age-structured SSAMs like WHAM to the IO bigeye tuna. Age-structured SSAMs have been rarely applied to tuna stocks, but their use might become more popular in future years. The implemented model configurations converged and were able to invert the Hessian to calculate standard error of derived quantities. Our models suggest that the SSB has decreased from values around 1.3 million mt in 1979 to values around 400 thousand mt in 2024. Also, the most likely stock status is not overfished and not subject to overfishing in 2024, although there is a high probability ($\sim 0.45$) of being subject to overfishing for most models. Our models used marginal length compositions as a key data input; however, *growth-WHAM* is also able to incorporate conditional age-at-length information, which could be explored in future analyses.
 
-There are some key differences among WHAM and SS3 that are important to interpret our model results. First, the SS3 model configurations are more complex: they are spatially-explicit and model quarters as years. Therefore, SS3 estimates of recruitment deviations are quarterly. Second, SS3 models ages from 0 to a maximum age (plus group). Therefore, the relationship between SSB and recruitment in the SSR has lag 0. Third, SS3 uses the penalized likelihood approach to estimate recruitment deviations by fixing the recruitment variability parameter $\sigma_R$, which may impact the recruitment estimates. Lastly, the meaning of fishing mortality ($F$) in SS3 is different from WHAM. In SS3, we normally report annual F as the average F in a subset of ages. In WHAM, annual F is reported as the maximum F per fleet and age.
+There are some key differences among WHAM and SS3 that are important to interpret our model results. First, the SS3 model configurations are more complex: they are spatially-explicit and model quarters as years. Therefore, SS3 estimates of recruitment deviations are quarterly and expected to be more variable. Second, SS3 models ages from 0 to a maximum age (plus group). Therefore, the relationship between SSB and recruitment in the SSR has lag 0. Third, SS3 uses the penalized likelihood approach to estimate recruitment deviations by fixing the recruitment variability parameter $\sigma_R$, which may impact the recruitment estimates. Lastly, the meaning of fishing mortality ($F$) in SS3 is different from WHAM. In SS3, we normally report annual F as the average F in a subset of ages. In WHAM, annual F is reported as the maximum F per fleet and age.
 
-Besides the structural differences between SS3 and WHAM, there are also key differences in the biological parameters used in this document and the last IO bigeye assessment conducted in 2022. The new growth curve presented by @evesonUpdatingEstimationAge2025 may suggest that the IO bigeye is more productive than previously thought since the mean length-at-age is larger compared with the curve used in @fuPreliminaryIndianOcean2022. Also, the $M$ at age values in our model are different and slightly larger than the values used in the 2022 IO bigeye assessment, which were fixed at age. In our study, we have not explored the individual impacts of these key updates in the biological parameters for this stock, but we would expect large impacts on model outputs.
+Besides the structural differences between SS3 and WHAM, there are also key differences in the biological parameters used in this document and the last IO bigeye assessment conducted in 2022. The new growth curve presented by @evesonUpdatingEstimationAge2025 may suggest that the IO bigeye is more productive than previously thought, since the mean length-at-age is larger compared with the curve used in @fuPreliminaryIndianOcean2022. Also, the $M$ at age values in our model are different and slightly larger than the values used in the 2022 IO bigeye assessment, which were fixed at age. In our study, we have not explored the individual impacts of these key updates on the biological parameters for this stock, but we would expect large impacts on model outputs.
 
-The version of WHAM used in this document (*growth-WHAM*) is not consistently maintained. The main version of WHAM has continued its development only considering the inclusion of age-specific data. Recently, the most recent WHAM version (2.0) has been published, allowing to model multiple areas/stocks, seasons, and movement among areas [@millerSpaceWHAMMultiregion2025]. Regarding the development of *growth-WHAM* for stocks like tunas, we recommend expanding its capabilities to model multiple seasons within a year as a first step, which may improve the fitting to length data and realism. Another model configuration that may be useful to explore is to model quarters as years as done in SS3; however, we found issues regarding memory allocation due to the large number of random effects to predict.
-
+The version of WHAM used in this document (*growth-WHAM*) is not consistently maintained. The main version of WHAM has continued to develop, focusing only on the inclusion of age-specific data. Recently, the most recent WHAM version (2.0) has been published, allowing for the modeling of multiple areas/stocks, seasons, and movement among areas [@millerSpaceWHAMMultiregion2025]. Regarding the development of *growth-WHAM* for stocks like tunas, we recommend expanding its capabilities to model multiple seasons within a year as a first step, which may improve the fitting to length data and realism. Another model configuration that may be useful to explore is to model quarters as years as done in SS3; however, we found issues regarding memory allocation due to the large number of random effects to predict. Finally, we could also explore the inclusion of conditional age-at-length data, which is currently possible in *growth-WHAM*.
 
 # References
 
@@ -285,12 +348,12 @@ The version of WHAM used in this document (*growth-WHAM*) is not consistently ma
 
 : Seven fishery groups and codes used in the current assessment. {#tbl-fishery-codes}
 
-| Model ID | LL selectivity | LS index |
-|----------|----------------|----------|
-| 1        | 1BlockLL       | noLS (excluded)    |
-| 2        | 1BlockLL       | LS (included)      |
-| 3        | 2BlockLL       | noLS (excluded)    |
-| 4        | 2BlockLL       | LS (included)      |
+| Model ID | LL selectivity | LS index        |
+|----------|----------------|-----------------|
+| 1        | 1BlockLL       | noLS (excluded) |
+| 2        | 1BlockLL       | LS (included)   |
+| 3        | 2BlockLL       | noLS (excluded) |
+| 4        | 2BlockLL       | LS (included)   |
 
 : Model configurations. *LL selectivity* refers to the modelling of one or two selectivity blocks for the LL fleet (before and after 2002). *LS index* refers to the inclusion or exclusion of the PSLS index. {#tbl-mod-config}
 
@@ -307,6 +370,7 @@ my_tab = my_tab %>% select(c(Parameter, Estimate)) %>% rename(Value = Estimate) 
 kable(my_tab)
 ```
 
+{{< pagebreak >}}
 
 ```{r}
 #| label: tbl-par-est
@@ -325,6 +389,8 @@ my_tab = my_tab %>% select(-`Std. Error`)
 kable(my_tab, digits = 2)
 ```
 
+{{< pagebreak >}}
+
 ```{r}
 #| label: tbl-mohn
 #| tbl-cap: Mohn's $\rho$ for each model configuration and variable. 
@@ -333,7 +399,6 @@ mytab1 = mytab1 %>% select(X, rho_SSB, rho_Fbar, rho_SSB_MSY, rho_R)
 colnames(mytab1) = c('Model', 'SSB', 'Fbar', 'SSB/SSBmsy', 'Recruitment')
 kable(mytab1)
 ```
-
 
 {{< pagebreak >}}
 
@@ -383,7 +448,6 @@ kable(mytab1)
 
 ![Relationship between annual estimates of SSB and recruitment by the *1BlockLL_LS_h08* model configuration.](../figures/fit2/plots_png/results/SSB_Rec.png){#fig-res-ssr}
 
-
 ![Comparison of annual estimates of SSB, recruitment, and fishing mortality among the model configurations.](../figures/compare/compare_png/compare_SSB_F_R.png){#fig-comp-ts}
 
 ![Annual estimates of $SSB_{MSY}$, $MSY$, and $F_{MSY}$ by the model configurations.](../figures/compare/compare_png/compare_ref_pts.png){#fig-comp-ref-1}
@@ -400,12 +464,11 @@ kable(mytab1)
 
 ![Retrospective patterns in fishing mortality (averaged for ages 1-5) by the *2BlockLL_noLS* model.](../figures/fit3/plots_png/retro/Fbar_retro.png){#fig-retro-f}
 
-
 ![Jitter analysis by model configuration. Change in marginal negative log likelihood by jitter iteration (x-axis). Ten iterations were run.](../figures/jitter/nLL.png){#fig-jitter-nll}
 
 ![Jitter analysis by model configuration. Change in estimates of annual SSB. Ten iterations were run.](../figures/jitter/SSB.png){#fig-jitter-ssb}
 
-![Likelihood profile of natural mortality (M) for the *2BlockLL_noLS* model configuration. The dashed vertical line represents the parameter value used in the *2BlockLL_noLS* model.](../figures/profile_M/nLL.png){#fig-prof-M}
+![Likelihood profile of initial abundance at age 1 ($N_1$) for the *1BlockLL_LS* model configuration. The profile is shown by likelihood component. The dashed vertical line represents the parameter value used in the model.](../figures/profile_N1/nLL.png){#fig-prof-N1}
 
 ![Five-year projection in SSB and $SSB_{MSY}$ by model configuration. The projected F was assumed to be as in 2024. The vertical dashed line indicates the start of the projection.](../figures/proj/SSB.png){#fig-proj-ssb}
 
