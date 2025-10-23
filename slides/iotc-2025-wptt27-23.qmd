@@ -1,0 +1,423 @@
+---
+title: "Advances in the use of state-space assessment models for tuna stocks: application to the Indian Ocean bigeye tuna"
+author: Giancarlo M. Correa, Genevieve Phillips, Gorka Merino, Agurtzane Urtizberea, Yang Wang
+embed-resources: false
+highlight-style: "a11y-dark"
+format: azti-revealjs
+revealjs-plugins:
+  - pointer
+include-in-header:
+  - text: |
+      <link rel = "shortcut icon" href = "azti.svg" />
+title-slide-attributes:
+    data-background-color: "#000000"
+csl: ../elsevier-harvard.csl
+execute:
+  echo: false
+  warning: false
+bibliography: ../references.bib
+mermaid-format: png
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      verbose = FALSE,
+                      message = FALSE, 
+                      warning = FALSE)
+```
+
+```{r}
+# remotes::install_github("wmoldham/rbbt") # temporarily, until error is fixed
+options(knitr.kable.NA = '')
+require(knitr)
+require(jpeg)
+require(rbbt)
+require(dplyr)
+require(flextable)
+require(kableExtra)
+require(this.path)
+qmd_file = this.path()
+# This will automatically update the BIB file:
+keys = rbbt::bbt_detect_citations(qmd_file)
+bbt_ignore = keys[grepl("fig-|tbl-|eq-|sec-", keys)]
+rbbt::bbt_update_bib(path_rmd = qmd_file, 
+                     ignore = bbt_ignore, overwrite = T, translator = "bibtex")
+```
+
+# Background
+
+## State-space approach
+
+![@auger-metheGuideStateSpace2021](images/D1_img4.png){width="100%"}
+
+<br>
+
+::: {style="font-size: 0.8em;"}
+
+Modelling of:
+
+1)  a state, or process, that is unobserved and attempts to reflect the true, but hidden, state of nature
+
+2)  observations related to the state
+
+:::
+
+## State-space approach
+
+<br>
+
+Important terminology:
+
+**Process variation**: represents variability in states, for example, over time. Modeled as *random effects*. 
+
+**Observation error**: reflects difference between observations and hidden states.
+
+<br>
+
+::: fragment
+
+::: {.callout-note}
+## Template Model Builder (TMB)
+
+Developed from AD Model Builder (ADMB). Use of the Laplace approximation to efficiently model random effects.
+:::
+
+:::
+
+## State-space assessment models (SSAMs)
+
+<br>
+
+- Available from early 1990's
+
+- Mostly using Bayesian approach (e.g., Stan, Jags)
+
+- Surplus state-space assessment models already widely available: *SPiCT*, *JABBA*
+
+- Some age-structured SSAMs: *SAM*, *Woods Hole Assessment Model (WHAM)*, several stock-specific models
+
+## State-space assessment models (SSAMs)
+
+Can we estimate process variation or model random effects in Stock Synthesis?
+
+<br>
+
+::: fragment
+
+Not really, we usually do:
+
+*Penalized deviance approach*: subjectively fixing process variation at some value and process variation forced to follow a distribution (e.g., normal).
+
+:::
+
+::: fragment
+
+::: {.callout-important}
+## Goal of SSAMs
+
+Ability to reliably and efficiently estimate process variation. No need of subjective decisions.
+:::
+
+:::
+
+## WHAM
+
+Presented in @stockWoodsHoleAssessment2021, mostly used in the East Coast of the United States. 
+
+::: fragment
+
+WHAM is able to include random effects with different structures on:
+
+- Numbers-at-age (includes recruitment)
+
+- Natural mortality
+
+- Selectivity
+
+- Environmental covariates
+
+- Catchability
+
+:::
+
+## WHAM development
+
+```{mermaid}
+%%| fig-width: 5
+%%| fig-align: center
+gitGraph
+    commit id: "single"
+    branch growth
+    checkout growth
+    commit id: "growth"
+    checkout main
+    commit id: "multi"
+```
+
+::: fragment
+
+::: {style="font-size: 0.65em;"}
+| `single` | `multi` | `growth` |
+|------------------------|------------------------|------------------------|
+| @stockWoodsHoleAssessment2021 | @millerSpaceWHAMMultiregion2025 | @correaModellingTimevaryingGrowth2023 |
+|  | developed from `single` | developed from `single` |
+| single-area | multiple areas and seasons | single-area |
+| age-specific data | age-specific data | age and size-specific data |
+| age-based processes | age-based processes | age and size-based processes |
+:::
+
+:::
+
+## WHAM package
+
+`wham` is a package in R, so everything could be done from R!
+
+<br>
+
+::: fragment
+
+Main R functions in `wham`:
+
+::: {style="font-size: 0.8em;"}
+
+- `prepare_wham_input`: put input data and initial values for parameters
+- `fit_wham`: fit model
+- `plot_wham_output`: produce several figures (similar to `SS_plots`)
+- `project_wham`: make projections
+- `retro`: do retrospective analysis
+- `jitter`: do jitter analysis
+
+:::
+
+:::
+
+# Methods
+
+## Model structure
+
+<br>
+
+::: incremental
+-   Single-area
+
+-   Annual time step
+
+-   Seven fisheries: LL, PSFS, PSLS, FL, LINE, BB, OTHER
+
+-   Ages: 1 to 10+
+
+- Years: 1979 - 2024
+
+:::
+
+## Data inputs
+
+::: incremental
+-   Aggregated catch, aggregated indices, marginal size compositions
+
+-   Source: IOTC database (same source as used in SS3 models)
+
+-   Two indices: LL (more weight) and PSLS
+
+-   Filtering of size compositions followed same criteria as used in SS3 models. Use RQ as proxy of input sample size
+
+-   Conditional age-at-length data could be used, but not explored here
+:::
+
+## Data inputs
+
+![](../figures/fit2/plots_png/input_data/catch_by_fleet.png){fig-align="center"}
+
+## Data inputs
+
+![](../figures/fit2/plots_png/input_data/index.png){fig-align="center"}
+
+## Model parameters
+
+::: incremental
+-   Growth: classic von Bertalanffy with updated parameters [@evesonUpdatingEstimationAge2025].
+
+- Natural mortality ($M$): age-specific, Lorenzen approach using $M_{ref}=5.4/Amax$, where $Amax=14.7$.
+
+-   Stock-recruitment: Beverton-Holt relationship. Steepness fixed at 0.8. $\sigma_R$ estimated.
+
+-   Initial abundance: equilibrium, $N1$ and $F1$ estimate to derive abundance for all ages.
+
+-   Length-weight and maturity: values from the SS3 model [@chassotLengthweightRelationshipsTropical2016].
+:::
+
+## Model parameters
+
+![](../figures/fit2/plots_png/results/phi_mat_tile.png){fig-align="center"}
+
+## Model parameters
+
+![](../figures/fit2/plots_png/results/M_at_age.png){fig-align="center"}
+
+## Model parameters
+
+<br>
+
+Size-based selectivity:
+
+::: {style="font-size: 0.7em;"}
+
+| Fleet | Description |
+|----|---------------|
+| LL      | Time-invariant (*1Block*), logistic. Two blocks (*2Block*): dome-shaped (before 2002) and logistic (after 2002). Used for LL index.   |
+| PSFS      |   Splines with five nodes          |
+| PSLS      |   Dome-shaped. Used for PSLS index.    |
+| FL      |   Logistic          |
+| LINE      |  Logistic           |
+| BB      |   Mirrored PSLS          |
+| OTHER      |    Mirrored PSFS         |
+
+:::
+
+## Model configurations
+
+<br>
+
+| Model ID | LL selectivity | PSLS index        |
+|----------|----------------|-----------------|
+| 1        | 1BlockLL       | noLS (excluded) |
+| 2        | 1BlockLL       | LS (included)   |
+| 3        | 2BlockLL       | noLS (excluded) |
+| 4        | 2BlockLL       | LS (included)   |
+
+
+# Results
+
+## Fits
+
+![LL index.](../figures/fit2/plots_png/diagnostics/Index_4panel_1.png){fig-align="center"}
+
+## Fits
+
+![PSLS index.](../figures/fit2/plots_png/diagnostics/Index_4panel_2.png){fig-align="center"}
+
+## Fits
+
+![PSLS fleet.](../figures/fit2/plots_png/diagnostics/Catch_len_comp_fleet_3_a.png){fig-align="center"}
+
+## Fits
+
+![LL size data. *1BlockLL_LS*](../figures/fit2/plots_png/diagnostics/Catch_len_comp_fleet_1.png){fig-align="center"}
+
+## Fits
+
+![LL size data. *2BlockLL_LS*](../figures/fit4/plots_png/diagnostics/Catch_len_comp_fleet_1.png){fig-align="center"}
+
+## Estimates
+
+![](../figures/fit2/plots_png/results/selex_tile.png){fig-align="center"}
+
+## Estimates
+
+![Selectivity for LL.](../figures/fit4/plots_png/results/Selectivity_index1.png){fig-align="center"}
+
+## Time series
+
+:::: {.columns}
+
+::: {.column width="40%"}
+![](../figures/compare/compare_png/compare_SSB_F_R.png){fig-align="center"}
+:::
+
+::: {.column width="60%"}
+
+<br>
+
+::: incremental
+
+- Similar trends across models
+
+- F meaning not as in SS3!
+
+- Increase in recruitment estimates in last years
+
+- SSB trend similar to preliminary SS3 model
+
+:::
+
+:::
+
+::::
+
+
+## Time series
+
+:::: {.columns}
+
+::: {.column width="60%"}
+
+<br>
+
+::: incremental
+
+- Fishing patterns among fleets and time-varying biological features may affect the calculation of reference points. 
+
+- Reference points are calculated by year in WHAM
+
+- Point to consider for our SS3 assessments?
+
+:::
+
+:::
+
+::: {.column width="40%"}
+
+![](../figures/compare/compare_png/compare_ref_pts.png)
+
+:::
+
+::::
+
+
+## Stock status
+
+![](../figures/compare/compare_png/compare_rel_status_kobe.png){fig-align="center"}
+
+## Diagnostics
+
+![*2BlockLL_noLS*](../figures/fit3/plots_png/retro/SSB_retro.png){fig-align="center"}
+
+## Diagnostics
+
+![Jitter analysis](../figures/jitter/nLL.png){fig-align="center"}
+
+## Projections
+
+![](../figures/proj/SSB.png){fig-align="center"}
+
+## Discussion
+
+::: incremental
+
+- Age-structured SSAMs are relatively new, still exploring estimation capabilities (issue in CJFAS coming out soon!)
+
+- TMB models already popular for, for example, CPUE standardization (e.g., *sdmTMB*, *VAST*)
+
+- Assessment models written in TMB already replacing models written in ADMB, they will arrive sooner or later in the tuna world (see the [FIMS project](https://noaa-fims.github.io/FIMS/))
+
+- For tunas, we need to incorporate size data!
+
+- Recommendation: start exploring the use of age-structured SSAMs
+
+:::
+
+## Thank you {background-color="black"}
+
+<br> <br>
+
+<center>
+
+![](__AZTI_secundario_BlancoAmarillo.png){width="50%"}
+
+<br>
+
+[Contact:]{style="font-size:40px"} <br> [gmoron\@azti.es](mailto:gmoron@azti.es){style="font-size:40px"}
+
+</center>
+
+## References

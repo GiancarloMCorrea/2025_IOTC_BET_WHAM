@@ -1,0 +1,40 @@
+<style>
+  .hide {
+    display: none !important;
+  }
+</style>
+
+<script>
+  function remove() {
+    let footer = document.querySelector('div.footer');
+    footer.classList.add('hide');
+  
+    Reveal.on('slidechanged', event => {  
+      if(event.currentSlide.matches('#title-slide')) {
+        footer.classList.add('hide');
+      } else {
+        footer.classList.remove('hide');
+      }
+    });
+  }
+  window.onload = remove();
+</script>
+
+<script>
+Reveal.on('ready', event => {
+  if (event.currentSlide.matches('#title-slide')) {
+	document.querySelector("div.has-logo > img.slide-logo").style.visibility = "hidden";
+	Reveal.configure({ slideNumber: null });
+  }
+});
+Reveal.addEventListener('slidechanged', (event) => {
+  if (event.currentSlide.matches('#title-slide')) {
+	Reveal.configure({ slideNumber: null });
+	document.querySelector("div.has-logo > img.slide-logo").style.visibility = "hidden";
+  } else { 
+	Reveal.configure({ slideNumber: 'c' });
+	document.querySelector("div.has-logo > img.slide-logo").style.visibility = "visible";
+  }
+});
+</script>
+

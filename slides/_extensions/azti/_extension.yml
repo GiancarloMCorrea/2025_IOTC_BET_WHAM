@@ -1,0 +1,20 @@
+title: AZTI Presentation Template
+author: Giancarlo M. Correa
+version: 1.3.0
+quarto-required: ">=1.3.340"
+contributes:
+  formats:
+    revealjs:
+      template-partials:
+        - revealjs-assets/title-slide.html
+      slide-number: c
+      self-contained: false
+      theme: azti.scss
+      footer: "&#169; AZTI 2024. Todos los derechos reservados."
+      logo: __AZTI_principal.png
+      pointer:
+        pointerSize: 18
+        color: '#0c23f5'
+      chalkboard: true
+      include-after-body: 
+        - revealjs-assets/clean_title_page.html

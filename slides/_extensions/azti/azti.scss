@@ -1,0 +1,167 @@
+/*-- scss:defaults --*/
+
+@import url(https://fonts.googleapis.com/css?family=Alegreya+Sans:300,300i,400,400i,500,500i,700,700i);
+// @import url(https://cdn.rawgit.com/tonsky/FiraCode/1.204/distr/fira_code.css);
+// @import url(https://use.fontawesome.com/releases/v6.1.1/css/all.css);
+
+// fonts
+$font-family: Arial;
+
+$code-bg: #000000;
+$link-color: #000000;
+$link-color-hover: #FCDA01;
+
+/*-- scss:rules --*/
+
+.picture {
+  border-style: solid;
+  border-width: 3pt;
+  border-color: #000000;
+  border-radius: 50%;
+  padding: 5pt;
+  height: 50%;
+  width: auto;
+}
+
+#title-slide {
+  text-align: left;
+
+	.title-logo {
+	  display: block;
+	  position: relative;
+	  width: 30%;
+	  height: auto;
+	}
+
+	.wrap {
+	  display: block;
+	  position: fixed;
+	  top: 0px;
+	  left: 50px;
+	  right: 0;
+	  margin: 0 auto;
+	  text-align: left;  
+	}
+
+  .title {
+	font-size: 45px;
+	font-weight: bold;
+	color: #FFFFFF;
+  }
+  
+  .subtitle {
+	font-size: 40px;
+	color: #FFFFFF;
+  }
+  
+  .author {
+	font-size: 30px;
+	color: #FFFFFF;
+  }
+  
+  .institute {
+	font-size: 25px;
+	font-style: italic;
+	color: #FFFFFF;
+  }  
+
+}
+
+.footer {
+  bottom: 10px !important;
+  left: 40% !important;
+  top: unset !important;
+  p {
+	font-size: 8pt;
+  }
+  color: #B7B6B5 !important;
+}
+
+.slide-logo {
+  display: block !important;
+  position: fixed !important;
+  top: 10px !important;
+  left: 20px !important;
+  max-height: 13% !important;
+  height: 100% !important;
+  width: auto !important;
+  color: #000000 !important;
+  z-index: 0 !important; // move logo behind background
+}
+
+.slide-menu-button {
+  color: #000000 !important;
+  left: 10px !important;
+  bottom: 10px !important;
+}
+
+.slide-number, .reveal.has-logo .slide-number {
+  bottom: 10px !important;
+  right: 50% !important;
+  top: unset !important;
+  font-size: 10pt;
+  color: #000000 !important;
+}
+
+
+.reveal .title-slide {
+	text-align: center;
+	font-size: 25pt;
+	background-color: #FCDA01;
+}
+
+.reveal .h1 {
+	text-align: center;
+	font-size: 50pt;
+}
+
+
+.reveal h2 {
+    font-size: 45pt;
+	text-align: center;
+}
+
+.reveal h3 {
+	font-size: 35pt;
+	text-align: center;
+}
+
+
+// Section break slide
+hr,
+h1::after {
+	content: "";
+	display: block;
+	border: none;
+	background-color: #000000;
+	color: #000000;
+	height: 7px;
+	margin: 0em 400px 0 400px;
+}
+
+hr,
+h2::after {
+	content: "";
+	display: block;
+	border: none;
+	background-color: #FCDA01;
+	color: #FCDA01;
+	height: 7px;
+	margin: 0em 400px 0 400px;
+}
+
+// Override h1 style for title slide (remove section break slide style)
+hr,
+h1.title::after {
+	content: "";
+	display: block;
+	border: none;
+	background-color: transparent !important;
+	color: transparent !important;
+	height: 0px;
+	margin: 0px !important;
+}
+
+h2::after.title {
+	margin: 10px 15px 35px 0;
+}
